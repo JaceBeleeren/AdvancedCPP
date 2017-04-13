@@ -9,6 +9,9 @@ public:
 	static bool decode_header(unsigned int *payload_size, unsigned char *action, unsigned char *following, char *header);
 	static void encode_header(unsigned int payload_size, unsigned char action, unsigned char following, char *data);
 
+	static unsigned int charToInt(char* data);
+	static void intToChar(unsigned int data, char* result);
+
 	static const unsigned short PORT = 12121;
 	static const std::string SERVICE;
 
@@ -26,13 +29,17 @@ public:
 
 	struct Login
 	{
-		std::string User;
+		std::string user;
 	};
+	static Login login_parseToStruct(char* payload);
+	static char* login_parseToPayload(Login input);
 
 	struct Login_Response
 	{
 		int id;
 	};
+	static Login_Response login_response_parseToStruct(char* payload);
+	static char* login_response_parseToPayload(Login_Response input);
 
 	//not needed since no payload is submitted
 	/*
