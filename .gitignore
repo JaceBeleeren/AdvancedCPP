@@ -14,6 +14,7 @@ DigitalLibrary/DigitalLibraryClient.vcxproj.filters
 DigitalLibrary/DigitalLibraryServer.dir/
 DigitalLibrary/DigitalLibraryServer.vcxproj
 DigitalLibrary/DigitalLibraryServer.vcxproj.filters
+DigitalLibrary/.vs
 DigitalLibrary/Win32
 DigitalLibrary/ZERO_CHECK.vcxproj
 DigitalLibrary/ZERO_CHECK.vcxproj.filters
