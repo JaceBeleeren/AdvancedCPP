@@ -85,26 +85,22 @@ void TCP_Client::start_sync()
 
 void TCP_Client::start_async()
 {
-	std::cout << "Input Message:\n";
-	std::string input;
-	std::getline(std::cin, input, '\n');
-	//std::cin >> input;
-
+	std::cout << std::endl << "Press <Enter> to submit data and receive response" << std::endl;
+	getchar();
+	ActionLogin payload;
+	payload.payload_struct.user = "Erwin aus dem Wald";
+	payload.payload_struct.test = 12345;
+	payload.payload_struct.string = "abcdefg";
+	payload.parseToPayload();
 	char data[Protocol::HEADER_SIZE + Protocol::MAX_PAYLOAD_SIZE + 1];
-
-	//fill header
-	int size = input.length();
-	std::cout << "Input Size:" << size << std::endl;
-	Protocol::encode_header(size, 1, 0, data);
-
-	//fill payload with input
-	strncpy(data + Protocol::HEADER_SIZE, input.c_str(), size);
-	data[Protocol::HEADER_SIZE + size] = '\0';
+	Protocol::encode_header(payload.payload_size, Protocol::ACTION_LOGIN, 0, data);
+	memcpy(data + Protocol::HEADER_SIZE, payload.payload.get(), payload.payload_size);
+	std::cout << "Input Size:" << payload.payload_size << std::endl;
 
 	boost::asio::async_write
 	(
 		socket,
-		boost::asio::buffer(data, Protocol::HEADER_SIZE + size),
+		boost::asio::buffer(data, Protocol::HEADER_SIZE + payload.payload_size),
 		boost::bind(&TCP_Client::handle_write, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred)
 	);
 }

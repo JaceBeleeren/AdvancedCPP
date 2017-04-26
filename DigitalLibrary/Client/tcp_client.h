@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "../Common/protocol.h"
+#include "../Common/Actions/actionlogin.h"
 
 typedef boost::asio::ip::tcp tcp;
 
