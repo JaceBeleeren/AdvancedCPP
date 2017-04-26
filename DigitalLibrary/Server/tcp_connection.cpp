@@ -52,6 +52,7 @@ void TCP_Connection::handle_write(const boost::system::error_code& error, std::s
 
 void TCP_Connection::handle_read_header(const boost::system::error_code& error, std::size_t n)
 {
+	payload = std::shared_ptr<char>(new char[Protocol::MAX_PAYLOAD_SIZE + 1], Protocol::array_deleter<char>());
 	std::cout << "Read Header:" << std::endl;
 	if (!error && Protocol::decode_header(&payload_size, &action, &following, header))
 	{
@@ -59,7 +60,7 @@ void TCP_Connection::handle_read_header(const boost::system::error_code& error, 
 		boost::asio::async_read
 		(
 			socket_,
-			boost::asio::buffer(payload, payload_size),
+			boost::asio::buffer(payload.get(), payload_size),
 			boost::bind(&TCP_Connection::handle_read_payload, shared_from_this(), boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred)
 		);
 		std::cout << "Payloadsize: " << payload_size << std::endl;
@@ -87,8 +88,16 @@ void TCP_Connection::handle_read_payload(const boost::system::error_code& error,
 	if (!error)
 	{
 		errorcount = 0;
-		payload[payload_size] = 0; //end string if it is not already
-		std::cout << "Payload: " << payload << std::endl;
+		
+		payload.get()[Protocol::HEADER_SIZE + payload_size] = 0;
+		if (action == Protocol::ACTION_LOGIN)
+		{
+			ActionLogin login;
+			login.parseToStruct(payload);
+			std::cout << "User: " << login.payload_struct.user << std::endl;
+			std::cout << "Test: " << login.payload_struct.test << std::endl;
+			std::cout << "String: " << login.payload_struct.string << std::endl;
+		}
 
 		/*do some stuff with payload and generate response*/
 		int action = 2;

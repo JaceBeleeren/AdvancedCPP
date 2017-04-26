@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "../Common/protocol.h"
+#include "../Common/Actions/actionlogin.h"
 
 class TCP_Connection : public boost::enable_shared_from_this<TCP_Connection>
 {
@@ -24,8 +25,8 @@ private:
 	boost::asio::ip::tcp::socket socket_;
 	unsigned int errorcount;
 
+	std::shared_ptr<char> payload;
 	char header[Protocol::HEADER_SIZE];
-	char payload[Protocol::MAX_PAYLOAD_SIZE + 1]; //+1 for additional \0
 	char data[Protocol::HEADER_SIZE + Protocol::MAX_PAYLOAD_SIZE + 1];
 	unsigned int payload_size;
 	unsigned char action;
