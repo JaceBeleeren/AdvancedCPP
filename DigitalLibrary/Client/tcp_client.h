@@ -8,6 +8,7 @@
 
 #include "../Common/protocol.h"
 #include "../Common/Actions/actionlogin.h"
+#include "../Common/Actions/actionaddbook.h"
 
 typedef boost::asio::ip::tcp tcp;
 
@@ -18,13 +19,12 @@ public:
 	~TCP_Client();
 	void start();
 	void start_async();
-	void start_sync();
 
 private:
 	void handle_connect(const boost::system::error_code& error);
-	void handle_write(const boost::system::error_code& error, std::size_t n);
-	void handle_read_header(const boost::system::error_code& error, std::size_t n);
-	void handle_read_payload(const boost::system::error_code& error, std::size_t n);
+	void handle_write(const boost::system::error_code& error, std::size_t n, unsigned char action);
+	void handle_read_header(const boost::system::error_code& error, std::size_t n, std::shared_ptr<char> header);
+	void handle_read_payload(const boost::system::error_code& error, std::size_t n, std::shared_ptr<char> payload, unsigned int payload_size, unsigned char action, unsigned char following);
 	void disconnect();
 	void reconnect();
 
@@ -33,12 +33,4 @@ private:
 
 	unsigned int errorcount;
 	unsigned int reconnect_count;
-
-	char header[Protocol::HEADER_SIZE];
-	char payload[Protocol::MAX_PAYLOAD_SIZE + 1]; //+1 for additional \0
-	char data[Protocol::HEADER_SIZE + Protocol::MAX_PAYLOAD_SIZE + 1];
-
-	unsigned int payload_size;
-	unsigned char action;
-	unsigned char following;
 };

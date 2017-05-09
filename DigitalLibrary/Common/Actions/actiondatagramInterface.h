@@ -15,7 +15,7 @@ public:
 		//can also be objects (beware of correct handling while parsing!)
 	};
 	std::shared_ptr<char> payload;
-	int payload_size = 0;
+	unsigned int payload_size = 0;
 	virtual bool parseToStruct(std::shared_ptr<char> newPayload)
 	{
 		payload = newPayload;
@@ -58,7 +58,7 @@ public:
 	{
 	};
 	std::shared_ptr<char> response_payload;
-	int response_size = 0;
+	unsigned int response_size = 0;
 	virtual bool response_parseToStruct(std::shared_ptr<char> newPayload)
 	{
 		response_payload = newPayload;

@@ -1,17 +1,22 @@
 #pragma once
 #include "actiondatagramInterface.h"
-class ActionLogin :
+class ActionAddBook :
 	public ActionDatagramInterface
 {
 public:
-	ActionLogin();
-	~ActionLogin();
+	ActionAddBook();
+	~ActionAddBook();
 
 	//ACTION
 	struct PayloadStruct
 	{
-		std::string user;
-		std::string password;
+		std::string title;
+		std::string author;
+		std::string summary;
+		std::string publisher;
+		unsigned int year;
+		std::string isbn;
+		unsigned int amount;
 	};
 	PayloadStruct payload_struct;
 	bool parseToStruct(std::shared_ptr<char> payload);
@@ -20,8 +25,8 @@ public:
 	//Response
 	struct ResponseStruct
 	{
-		unsigned int id;
-		unsigned int permissions;
+		unsigned int id; //new or existing id
+		std::string response; //can used to tell that book exists already for example
 	};
 	ResponseStruct response_struct;
 	bool response_parseToStruct(std::shared_ptr<char> payload);
