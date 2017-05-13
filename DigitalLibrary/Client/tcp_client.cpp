@@ -1,26 +1,10 @@
 
 #include "tcp_client.h"
 
-TCP_Client::TCP_Client(std::string host, boost::asio::io_service& io_service)
-	: socket(io_service), acceptor(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), Protocol::PORT)), errorcount(0), reconnect_count(0)
+TCP_Client::TCP_Client(std::string newHost, boost::asio::io_service& io_service)
+	: socket(io_service), errorcount(0), reconnect_count(0), host(newHost)
 {
-	tcp::resolver resolver(socket.get_io_service());
-	tcp::resolver::query query(host, Protocol::SERVICE);
-	tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-
-	//sync
-	/*
-	boost::asio::connect(socket, endpoint_iterator);
-	start_sync();
-	//*/
-
-	//async
-	///*
-	boost::asio::async_connect(socket, endpoint_iterator, boost::bind(&TCP_Client::handle_connect, this, boost::asio::placeholders::error));
-	//*/
-
-	//start();
-	
+	connect();
 }
 
 
@@ -28,22 +12,19 @@ TCP_Client::~TCP_Client()
 {
 }
 
-void TCP_Client::start()
-{
-	//start_async();
-	//start_sync();
-}
-
 
 void TCP_Client::handle_connect(const boost::system::error_code& error)
 {
-	if (!error)
+	if (!error && socket.is_open())
 	{
+		reconnect_count = 0;
+		std::cout << "Connected" << std::endl;
 		start_async();
 	}
 	else
 	{
 		std::cout << "Error handle connect:" << error << std::endl;
+		reconnect();
 	}
 }
 
@@ -61,18 +42,13 @@ void TCP_Client::start_async()
 
 	if (choosen_action == 0)
 	{
+		std::shared_ptr<Book> book = std::shared_ptr<Book>(new Book("How to C++", "Ich", "Isn't a title enough?", "FH-Kiel", 2017, "666-666-666", 10));
 		ActionAddBook addBook;
-		addBook.payload_struct.title = "How to C++";
-		addBook.payload_struct.author = "Ich";
-		addBook.payload_struct.summary = "Isn't a title enough?";
-		addBook.payload_struct.publisher = "FH-Kiel";
-		addBook.payload_struct.year = 2017;
-		addBook.payload_struct.isbn = "666-666-666";
-		addBook.payload_struct.amount = 10;
+		addBook.payload_struct.book = book;
 		addBook.parseToPayload();
 		action_payload = addBook.payload;
 		payload_size = addBook.payload_size;
-		action = Protocol::ACTION_ADD_BOOK;
+		action = addBook.action;
 		following = 0;
 	}
 		
@@ -168,6 +144,10 @@ void TCP_Client::handle_read_payload(const boost::system::error_code& error, std
 			std::cout << "ID: " << addBookResponse.response_struct.id << std::endl;
 			std::cout << "Response: " << addBookResponse.response_struct.response << std::endl;
 		}
+		else
+		{
+			std::cout << std::endl << "Received action " << std::to_string(action) << " is not a valid action!" << std::endl;
+		}
 		start_async();
 	}
 	else
@@ -189,21 +169,57 @@ void TCP_Client::handle_read_payload(const boost::system::error_code& error, std
 
 void TCP_Client::disconnect()
 {
+	boost::system::error_code ec_shutdown;
+	socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec_shutdown);
+	if (ec_shutdown && ec_shutdown != boost::system::errc::not_connected /*socket not connected*/)
+	{
+		std::cout << "An error occured shutting down socket: " << ec_shutdown << std::endl;
+	}
+	boost::system::error_code ec_close;
+	socket.close(ec_close);
+	if (ec_close)
+	{
+		std::cout << "An error occured closing socket: " << ec_close << std::endl;
+	}
 	std::cout << "Disconnect" << std::endl;
 }
 void TCP_Client::reconnect()
 {
 	if (reconnect_count > Protocol::MAX_RECONNECTCOUNT)
-		disconnect();
+	{
+		char answer;
+		do
+		{
+
+			std::cout << "Tried reconnecting for " << Protocol::MAX_RECONNECTCOUNT << "times. Try again? (Y/N)" << std::endl;
+			std::cin >> answer;
+			if (answer == 'Y' || answer == 'y')
+			{
+				reconnect_count = 1;
+				std::cout << "Reconnect: " << reconnect_count << ". try" << std::endl;
+				connect(true);
+			}
+			else if(answer == 'N' || answer == 'n')
+			{
+				disconnect();
+			}
+		} while (answer != 'N' && answer != 'n' &&answer != 'Y' &&answer != 'y');
+		
+	}
 	else
 	{
 		reconnect_count++;
 		std::cout << "Reconnect: " << reconnect_count << ". try" << std::endl;
-		if (1)
-		{
-			std::cout << "Reconnected" << std::endl;
-		}
-		else
-			reconnect();
+		connect(true);
 	}
+}
+
+void TCP_Client::connect(bool disconnect_indicator)
+{
+	if(disconnect_indicator)
+		disconnect();
+	tcp::resolver resolver(socket.get_io_service());
+	tcp::resolver::query query(host, Protocol::SERVICE);
+	tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
+	boost::asio::async_connect(socket, endpoint_iterator, boost::bind(&TCP_Client::handle_connect, this, boost::asio::placeholders::error));
 }

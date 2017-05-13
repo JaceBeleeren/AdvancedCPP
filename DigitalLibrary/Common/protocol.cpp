@@ -1,6 +1,6 @@
 #include "protocol.h"
 
-const std::string Protocol::SERVICE = std::to_string(Protocol::PORT);
+const std::string Protocol::SERVICE = std::to_string(Protocol::SERVERPORT);
 Protocol::Protocol()
 {
 }
