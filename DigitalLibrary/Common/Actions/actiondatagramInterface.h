@@ -1,5 +1,8 @@
 #pragma once
 
+#include <memory>
+#include <exception>
+#include <string>
 #include "..\protocol.h"
 
 class ActionDatagramInterface
@@ -9,132 +12,259 @@ public:
 	~ActionDatagramInterface() {};
 
 	//ACTION
-	virtual struct PayloadStruct
+	unsigned int action;
+	struct PayloadStruct
 	{
 		//fill with needed data
 		//can also be objects (beware of correct handling while parsing!)
 	};
 	std::shared_ptr<char> payload;
 	unsigned int payload_size = 0;
-	virtual bool parseToStruct(std::shared_ptr<char> newPayload)
+	unsigned int payload_following = 0;
+	unsigned char payload_action;
+	virtual bool parseToStruct(std::shared_ptr<char> newPayload) = 0;
+	/*	
 	{
 		payload = newPayload;
 		payload_size = 0;
-		//copy string from payload
-		/*
+
+		//std::string
+		if (!check_payload_size(payload_size))
+			return false;
 		payload_struct.string = std::string(payload.get() + payload_size);
-			payload_size = payload_struct.user.size() + 1; //+1 for null terminator
-		*/
-		//copy unsigned int from payload
-		/*
+		payload_size = payload_struct.string.size() + sizeof(char);
+
+		//unsigned int
+		if (!check_payload_size(payload_size))
+			return false;
 		payload_struct.uint = Protocol::charToUInt(payload.get() + payload_size);
-			payload_size += sizeof(unsigned int);
-		*/
+		payload_size += sizeof(unsigned int);
+
+		//int
+		if (!check_payload_size(payload_size))
+			return false;
+		payload_struct.int = Protocol::charToInt(payload.get() + payload_size);
+		payload_size += sizeof(int);
+
+		//char/unsigned char
+		if (!check_payload_size(payload_size))
+			return false;
+		payload_struct.char = *(payload.get() + payload_size);
+		payload_size += sizeof(char);
+
+		if (payload_size > Protocol::MAX_PAYLOAD_SIZE)
+			return false;
 		return true;
-	};
-	virtual bool parseToPayload()
+	};*/
+	virtual bool parseToPayload() = 0;
+	/*
 	{
+		unsigned int add;
 		payload_size = 0;
 		if (!payload)
 			payload = std::shared_ptr<char>(new char[Protocol::MAX_PAYLOAD_SIZE + 1], Protocol::array_deleter<char>());
 
-		//copy string to payload
-		/*
+		//std::string
+		add = payload_struct.string.size();
+		if (!check_payload_size(payload_size + add))
+			return false;
 		std::copy(payload_struct.string.begin(), payload_struct.string.end(), payload.get() + payload_size);
-			payload_size += payload_struct.string.size();
-				payload.get()[payload_size] = '\0';
-				payload_size += 1;
-		*/
-		//copy unsigned int to payload
-		/*
-			Protocol::uintToChar(payload_struct.uint, payload.get() + payload_size);//4bytes
-			payload_size += sizeof(unsigned int);
-		*/
+		payload_size += add;
+
+		add = sizeof(char);
+		if (!check_payload_size(payload_size + add))
+			return false;
+		payload.get()[payload_size] = '\0';
+		payload_size += add;
+
+		//unsigned int
+		add = sizeof(unsigned int);
+		if (!check_payload_size(payload_size + add))
+			return false;
+		Protocol::uintToChar(payload_struct.uint, payload.get() + payload_size);//4bytes
+		payload_size += add;
+
+		//int
+		add = sizeof(int);
+		if (!check_payload_size(payload_size + add))
+			return false;
+		Protocol::intToChar(payload_struct.int, payload.get() + payload_size);//4bytes
+		payload_size += add;
+
+		//char/unsigned char
+		add = sizeof(char);
+		if (!check_payload_size(payload_size + add))
+			return false;
+		payload.get()[payload_size] = payload_struct.char;
+		size += add;
+	
+
+		if (payload_size > Protocol::MAX_PAYLOAD_SIZE)
+			return false;
 		return true;
-	};
+	};*/
 
 	//Response
-	virtual struct ResponseStruct
+	static const unsigned int action_response;
+	struct ResponseStruct
 	{
 	};
 	std::shared_ptr<char> response_payload;
 	unsigned int response_size = 0;
-	virtual bool response_parseToStruct(std::shared_ptr<char> newPayload)
+	unsigned int response_following = 0;
+	unsigned char response_action;
+	virtual bool response_parseToStruct(std::shared_ptr<char> newPayload) = 0;
+	/*
 	{
 		response_payload = newPayload;
 		response_size = 0;
-		//see parseToStruct()
+
+		//std::string
+		if (!check_response_size(response_size))
+			return false;
+		response_struct.string = std::string(response_payload.get() + response_size);
+		response_size = response_struct.string.size() + sizeof(char);
+
+		//unsigned int
+		if (!check_response_size(response_size))
+			return false;
+		response_struct.uint = Protocol::charToUInt(response_payload.get() + response_size);
+		response_size += sizeof(unsigned int);
+
+		//int
+		if (!check_response_size(response_size))
+			return false;
+		response_struct.int = Protocol::charToUInt(response_payload.get() + response_size);
+		response_size += sizeof(unsigned int);
+
+		//char/unsigned char
+		if (!check_response_size(response_size))
+			return false;
+		response_struct.char = *(response_payload.get() + response_size);
+		response_size += sizeof(char);
+
+		if (response_size > Protocol::MAX_PAYLOAD_SIZE)
+			return false;
 		return true;
-	};
-	virtual bool response_parseToPayload()
+	};*/
+
+	virtual bool response_parseToPayload() = 0;
+	/*
 	{
+		unsigned int add;
 		response_size = 0;
 		if (!response_payload)
 			response_payload = std::shared_ptr<char>(new char[Protocol::MAX_PAYLOAD_SIZE + 1], Protocol::array_deleter<char>());
-		//see parseToPayload()
+
+		//std::string
+		add = response_struct.string.size();
+		if (!check_response_size(response_size + add))
+			return false;
+		std::copy(response_struct.string.begin(), response_struct.string.end(), response_payload.get() + response_size);
+		response_size += add;
+
+		add = sizeof(char);
+		if (!check_response_size(response_size + add))
+			return false;
+		response_payload.get()[response_size] = '\0';
+		response_size += add;
+
+		//unsigned int
+		add = sizeof(unsigned int);
+		if (!check_response_size(response_size + add))
+			return false;
+		Protocol::uintToChar(response_struct.uint, response_payload.get() + response_size);//4bytes
+		response_size += add;
+
+		//int
+		add = sizeof(int);
+		if (!check_response_size(response_size + add))
+			return false;
+		Protocol::uintToChar(response_struct.int, response_payload.get() + response_size);//4bytes
+		response_size += add;
+
+		//char/unsigned char
+		add = sizeof(char);
+		if (!check_response_size(response_size + add))
+			return false;
+		response_payload.get()[response_size] = response_struct.char;
+		response_size += add;
+
+		if (response_size > Protocol::MAX_PAYLOAD_SIZE)
+			return false;
 		return true;
-	};
-	virtual void fillResponsePayloadStruct() {};
+	};*/
+
+protected:
+	bool check_response_size(unsigned int size)
+	{
+		return check_payload_size(size);
+	}
+	bool check_payload_size(unsigned int size)
+	{
+		if (size > Protocol::MAX_PAYLOAD_SIZE)
+		{
+			return false;
+			std::cout << "\nPayload Size " << std::to_string(size) << " would exceed maximum allowed size of " << std::to_string(Protocol::MAX_PAYLOAD_SIZE) << " !" << std::endl;
+		}
+		return true;
+	}
 };
 
 /*
 Examples:
 Sending Data:
 
-	ActionLogin payload;//extends ActionDatagramInterface
-	//Fill payload with needed data
-		payload.payload_struct.user = "Erwin aus dem Wald";
-		payload.payload_struct.test = 12345;
-		payload.payload_struct.string = "abcdefg";
-		payload.parseToPayload();
-	//create array for header AND payload
-		char data[Protocol::HEADER_SIZE + Protocol::MAX_PAYLOAD_SIZE + 1];
-	//generate header
-		Protocol::encode_header(payload.payload_size, Protocol::ACTION_LOGIN, 0, data);
-	//copy payload into datagram array
-		memcpy(data + Protocol::HEADER_SIZE, payload.payload.get(), payload.payload_size);
+	//create shared pointer of char array for payload
+	std::shared_ptr<char> payload = std::shared_ptr<char>(new char[Protocol::HEADER_SIZE + Protocol::MAX_PAYLOAD_SIZE + 1], Protocol::array_deleter<char>());//payload including header
+	std::shared_ptr<char> action_payload;//payload excluding header
 
+	unsigned char action;
+	unsigned char following;
+	unsigned int payload_size;
+
+	if (choosen_action == 0)//some dummy to choose specific action according to user input
+	{
+		std::shared_ptr<Book> book = std::shared_ptr<Book>(new Book("How to C++", "Ich", "Isn't a title enough?", "FH-Kiel", 2017, "666-666-666", 10));
+
+		ActionAddBook addBook;//create action object
+		addBook.payload_struct.book = book; //fill action object with nessesary data
+		addBook.parseToPayload();//parse data of actionobject to payload
+		action_payload = addBook.payload;//get payload of action object
+		payload_size = addBook.payload_size;//get payload size of action object
+		action = addBook.action;//get action from action object
+		following = 0;
+	}
+		
+	Protocol::encode_header(payload_size, action, following, payload);//encode header and save to payload
+	memcpy(payload.get() + Protocol::HEADER_SIZE, action_payload.get(), payload_size);//save action object payload to payload
+	payload.get()[Protocol::HEADER_SIZE + payload_size] = '\0';//finish payload with guaranteed 0 terminator
+	
+	//send payload
 	boost::asio::async_write
 	(
 		socket,
-		boost::asio::buffer(data, Protocol::HEADER_SIZE + payload.payload_size),
-		boost::bind(&TCP_Client::handle_write, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred)
+		boost::asio::buffer(payload.get(), Protocol::HEADER_SIZE + payload_size),
+		boost::bind(&TCP_Client::handle_write, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, action)
 	);
 
-Receiving Data:
-	std::shared_ptr<char> payload;
-	unsigned int payload_size;
-	unsigned char action;
-	unsigned char following;
-	char header[Protocol::HEADER_SIZE];
-
-	void TCP_Connection::handle_read_header(const boost::system::error_code& error, std::size_t n)
+Receiving Data:	
+	void TCP_Connection::handle_read_payload(const boost::system::error_code& error, std::size_t n, std::shared_ptr<char> payload, unsigned int payload_size, unsigned char action, unsigned char following)
 	{
-		payload = std::shared_ptr<char>(new char[Protocol::MAX_PAYLOAD_SIZE + 1], Protocol::array_deleter<char>());
-		if (!error && Protocol::decode_header(&payload_size, &action, &following, header))
-		{
-			boost::asio::async_read
-			(
-				socket_,
-				boost::asio::buffer(payload.get(), payload_size),
-				boost::bind(&TCP_Connection::handle_read_payload, shared_from_this(), boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred)
-			);
-		}
-	}
-
-	void TCP_Connection::handle_read_payload(const boost::system::error_code& error, std::size_t n)
+	std::cout << "Read payload: " << action << std::endl;
+	if (!error)
 	{
-		if (!error)
+		if (action == Protocol::ACTION_ADD_BOOK)
 		{
-			payload.get()[payload_size] = 0; //force end payload with null terminator
-			if (action == Protocol::ACTION_LOGIN)
-			{
-				ActionLogin login;
-				login.parseToStruct(datagram);
-				std::cout << "User: " << login.payload_struct.user << std::endl;
-				std::cout << "Test: " << login.payload_struct.test << std::endl;
-				std::cout << "String: " << login.payload_struct.string << std::endl;
-			}
-		}
+			ActionAddBook addBook;//create action object
+			addBook.parseToStruct(payload);//get data from payload
+			//read data
+			std::cout << "Add Book" << std::endl;
+			std::cout << "Title: " << addBook.payload_struct.book.get()->title << std::endl;
+			std::cout << "Author: " << addBook.payload_struct.book.get()->author << std::endl;
+			std::cout << "Summary: " << addBook.payload_struct.book.get()->summary << std::endl;
+			std::cout << "Year: " << addBook.payload_struct.book.get()->year << std::endl;
+			std::cout << "ISBN: " << addBook.payload_struct.book.get()->getIsbn() << std::endl;
+			std::cout << "Amount: " << addBook.payload_struct.book.get()->getAmount() << std::endl;
 	}
 */

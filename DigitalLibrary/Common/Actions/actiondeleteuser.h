@@ -1,29 +1,28 @@
 #pragma once
 #include "actiondatagramInterface.h"
-class ActionLogin :
+class ActionDeleteUser :
 	public ActionDatagramInterface
 {
 public:
-	ActionLogin();
-	~ActionLogin();
+	ActionDeleteUser();
+	~ActionDeleteUser();
 
 	//ACTION
-	static const unsigned int action = Protocol::ACTION_LOGIN;
+	static const unsigned int action = Protocol::ACTION_DELETE_USER;
 	struct PayloadStruct
 	{
-		std::string user;
-		std::string password;
+		unsigned int id;
+		//User class?
 	};
 	PayloadStruct payload_struct;
 	bool parseToStruct(std::shared_ptr<char> payload);
 	bool parseToPayload();
 
 	//Response
-	static const unsigned int action_response = Protocol::ACTION_LOGIN_RESPONSE;
+	static const unsigned int action_response = Protocol::ACTION_DELETE_USER_RESPONSE;
 	struct ResponseStruct
 	{
-		unsigned int id;
-		unsigned int permissions;
+		unsigned char success;
 	};
 	ResponseStruct response_struct;
 	bool response_parseToStruct(std::shared_ptr<char> payload);

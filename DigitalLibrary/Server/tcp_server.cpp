@@ -1,8 +1,7 @@
 #include "tcp_server.h"
 
 
-
-TCP_Server::TCP_Server(boost::asio::io_service& io_service) : acceptor_(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), Protocol::PORT))
+TCP_Server::TCP_Server(boost::asio::io_service& io_service) : acceptor_(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), Protocol::SERVERPORT))
 {
 	start_accept();
 }
@@ -18,7 +17,7 @@ void TCP_Server::start_accept()
 
 	acceptor_.async_accept
 	(
-		new_connection->socket(),
+		new_connection->getSocket(),
 		boost::bind(&TCP_Server::handle_accept, this, new_connection, boost::asio::placeholders::error)
 	);
 }
