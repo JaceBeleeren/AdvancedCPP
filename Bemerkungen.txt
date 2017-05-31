@@ -1,0 +1,15 @@
+Actions für User angepasst. 
+UserKlasse. (username ist quasi die ID, unique test für username fehlt noch)
+Unterscheidung von Usern wir anhand des Usertypes beim login  vorgenommen. Noch nicht impl. 
+Suchoptionen für Bücher angepasst. 
+InputFct enthalten die Cout und Cin für die Bibliothekfunktionen
+Tcp_Client enthält Funktionen die die einzelnen Actions ausführen sollen. 
+
+Applikation startet, l für login  (Username : Max Passwort:1234) 
+Zeigerfehler oder so ähnlich. Ging zwischenzeitlich mal.  
+ login aktuell nur clientseitig.  
+Das meiste läuft nur clientseitig, brauch vllt nochmal ne hilfe wie ich die Actions richtig mit verarbeite. 
+c für create 
+username UND passwort eingeben, ebenfalls (zeiger?)fehler. 
+
+Habe mit den Funktionen für den normalen User angefangen (für den employee wäre es im großen und ganzen dasselbe, wenn einmal die actionprocessing sache geklärt ist) 
