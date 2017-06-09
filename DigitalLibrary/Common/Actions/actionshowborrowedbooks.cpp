@@ -111,7 +111,8 @@ bool ActionShowBorrowedBooks::response_parseToStruct(std::shared_ptr<char> newPa
 		try
 		{
 			//insert new book received, throws exception if not successful
-			std::shared_ptr<Book> book = std::shared_ptr<Book>(new Book(title, author, summary, publisher, year, isbn, amount));
+			std::shared_ptr<Book> book = std::shared_ptr<Book>(new Book());
+			book.get()->constructorBook(title, author, summary, publisher, year, isbn, amount);
 
 			for (unsigned int j = 0; j < borrowedByUserSize; j++)//iterate over every user in received map borrowedByUser
 			{

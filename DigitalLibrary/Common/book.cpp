@@ -1,9 +1,21 @@
 #include "book.h"
 
 std::map<unsigned int, std::shared_ptr<Book>> Book::books;
-Book::Book(std::string isbn)
+//constructor only sets constructed to false to indicate that constructorBook() still needs to be called
+//only call constructor like this:
+//std::shared_ptr<Book> book = std::shared_ptr<Book>(new Book());
+//then right after calling the constructor, immediatly call one (and only one!) of the actual constructors:
+//book.get()->constructorBook(isbn);
+//book.get()->constructorBook(title, author, summary, publisher, year, isbn, amount);
+Book::Book() {
+	constructed = false;
+}
+
+//actual constructor, call right after calling constructor
+void Book::constructorBook(std::string isbn)
 {
 	std::string errorMessage = "";
+	checkConstruction(false);
 	unsigned int tempId = 1;
 	std::map<unsigned int, std::shared_ptr<Book>>::iterator it;
 	for (it = books.begin(); it != books.end(); it++)
@@ -12,7 +24,7 @@ Book::Book(std::string isbn)
 			tempId++;
 		if (isbn == it->second.get()->getIsbn())
 		{
-			errorMessage += "\nISBN already exists!";
+			errorMessage += "\nISBN " + isbn + " already exists!";
 			std::cout << errorMessage;
 			throw std::invalid_argument(errorMessage);
 		}
@@ -27,12 +39,15 @@ Book::Book(std::string isbn)
 	this->isbn = isbn;
 	this->amount = 0;
 	this->borrowed = 0;
-	books.insert(std::make_pair(id, std::shared_ptr<Book>(this)));
+	books.insert(std::make_pair(id, shared_from_this()));
+	constructed = true;
 }
 
-Book::Book(std::string title, std::string author, std::string summary, std::string publisher, unsigned int year, std::string isbn, unsigned int amount)
+//actual constructor, call right after calling constructor
+void Book::constructorBook(std::string title, std::string author, std::string summary, std::string publisher, unsigned int year, std::string isbn, unsigned int amount)
 {
 	std::string errorMessage = "";
+	checkConstruction(false);
 	unsigned int tempId = 1;
 	std::map<unsigned int, std::shared_ptr<Book>>::iterator it;
 	for (it = books.begin(); it != books.end(); it++)
@@ -41,12 +56,12 @@ Book::Book(std::string title, std::string author, std::string summary, std::stri
 			tempId++;
 		if (isbn == it->second.get()->getIsbn())
 		{
-			errorMessage += "\nISBN already exists!";
+			errorMessage += "\nISBN " + isbn + " already exists!";
 			std::cout << errorMessage;
 			throw std::invalid_argument(errorMessage);
 		}
 	}
-	
+
 	this->id = tempId;
 	this->title = title;
 	this->author = author;
@@ -56,8 +71,11 @@ Book::Book(std::string title, std::string author, std::string summary, std::stri
 	this->isbn = isbn;
 	this->amount = amount;
 	this->borrowed = 0;
-	books.insert(std::make_pair(id, std::shared_ptr<Book>(this)));
+	books.insert(std::make_pair(id, shared_from_this()));
+	constructed = true;
 }
+
+
 
 Book::~Book()
 {
@@ -95,6 +113,8 @@ std::string Book::modifyBook(std::string title, std::string author, std::string 
 
 std::string Book::modifyBook(std::string title, std::string author, std::string summary, std::string publisher, unsigned int year, std::string isbn, unsigned int amount)
 {
+	std::string errorMessage = "";
+	checkConstruction(true);
 	return modifyBook(title, author, summary, publisher, year, isbn, amount, this->id);
 }
 
@@ -112,6 +132,8 @@ std::string Book::deleteBook(unsigned int id)
 
 std::string Book::deleteBook()
 {
+	std::string errorMessage = "";
+	checkConstruction(true);
 	return deleteBook(this->id);
 }
 
@@ -177,6 +199,8 @@ std::string Book::borrow(unsigned int id, unsigned int userId)
 
 std::string Book::borrow(unsigned int userId)
 {
+	std::string errorMessage = "";
+	checkConstruction(true);
 	return borrow(this->id, userId);
 }
 
@@ -215,21 +239,25 @@ std::string Book::returnBook(unsigned int id, unsigned int userId)
 
 std::string Book::returnBook(unsigned int userId)
 {
+	checkConstruction(true);
 	return returnBook(this->id, userId);
 }
 
 unsigned int Book::getId()
 {
+	checkConstruction(true);
 	return this->id;
 }
 
 const std::string& Book::getIsbn()
 {
+	checkConstruction(true);
 	return this->isbn;
 }
 
 std::string Book::setIsbn(std::string isbn)
 {
+	checkConstruction(true);
 	std::string errorMessage = "";
 	std::map<unsigned int, std::shared_ptr<Book>>::iterator it;
 	for (it = books.begin(); it != books.end(); it++)
@@ -246,11 +274,13 @@ std::string Book::setIsbn(std::string isbn)
 
 unsigned int Book::getAmount()
 {
+	checkConstruction(true);
 	return this->amount;
 }
 
 std::string Book::setAmount(unsigned int amount)
 {
+	checkConstruction(true);
 	std::string message = "";
 	if (amount < this->borrowed)
 	{
@@ -263,6 +293,27 @@ std::string Book::setAmount(unsigned int amount)
 
 unsigned int Book::getBorrowed()
 {
+	checkConstruction(true);
 	return this->borrowed;
+}
+
+bool Book::checkConstruction(bool construction)
+{
+	std::string errorMessage = "";
+	if (construction && !constructed)
+	{
+		errorMessage += "\nconstructorBook() was not called yet!";
+		std::cout << errorMessage;
+		throw std::exception(errorMessage.c_str());
+		return false;
+	}
+	else if(!construction && constructed)
+	{
+		errorMessage += "\nconstructorBook() was already called!";
+		std::cout << errorMessage;
+		throw std::exception(errorMessage.c_str());
+		return false;
+	}
+	return true;
 }
 

@@ -17,7 +17,7 @@ typedef boost::asio::ip::tcp tcp;
 class TCP_Client : public boost::enable_shared_from_this<TCP_Client>
 {
 public:
-	TCP_Client(std::string newHost, boost::asio::io_service& io_service);
+	TCP_Client(std::string newHost, boost::asio::io_service& io_service, int id);
 	~TCP_Client();
 	void start_async();
 

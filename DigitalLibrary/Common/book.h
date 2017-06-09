@@ -6,12 +6,15 @@
 #include <map>
 #include <string>
 #include <tuple>
+#include  <functional>
 
-class Book
+class Book : public std::enable_shared_from_this<Book>
 {
 public:
-	Book(std::string isbn);//throws exception std::invalid_argument
-	Book(std::string title, std::string author, std::string summary, std::string publisher, unsigned int year, std::string isbn, unsigned int amount = 0);//throws exception std::invalid_argument
+	Book();//only call constructor like this std::shared_ptr<Book> book = std::shared_ptr<Book>(new Book());! call constructorBook() after calling the constructor!
+	bool constructed;
+	void constructorBook(std::string isbn);//throws exception std::invalid_argument //actual constructor
+	void constructorBook(std::string title, std::string author, std::string summary, std::string publisher, unsigned int year, std::string isbn, unsigned int amount = 0);//throws exception std::invalid_argument //actual constructor
 	~Book();
 	static std::string modifyBook(std::string title, std::string author, std::string summary, std::string publisher, unsigned int year, std::string isbn, unsigned int amount, unsigned int id);
 	std::string modifyBook(std::string title, std::string author, std::string summary, std::string publisher, unsigned int year, std::string isbn, unsigned int amount);
@@ -41,6 +44,7 @@ public:
 	//std::string setBorrowed(); //set amount of books borrowed, cant be higher than amount //not needed since books will be borrowed with borrow()
 	std::map<unsigned int, unsigned int> borrowedByUser;//key = userId, value = amount
 private:
+	bool checkConstruction(bool construction = true);//check if actual constructor was already called (false) or is not called yet (true) and throws exception if its true
 	unsigned int id; //Book ID and Key for std::map Books
 	std::string isbn;
 	unsigned int amount;

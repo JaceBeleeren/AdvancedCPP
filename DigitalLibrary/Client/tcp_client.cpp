@@ -1,9 +1,10 @@
 
 #include "tcp_client.h"
 
-TCP_Client::TCP_Client(std::string newHost, boost::asio::io_service& io_service)
+TCP_Client::TCP_Client(std::string newHost, boost::asio::io_service& io_service, int id)
 	: socket(io_service), errorcount(0), reconnect_count(0), host(newHost)
 {
+	std::cout << "Amount of different books: " << Book::books.size() << " Test created test book: " << Book::books.find(id)->second.get()->title << ":" << Book::books.find(id)->second.get()->getIsbn() << " ID: " << id << std::endl;
 	connect();
 }
 
@@ -42,7 +43,8 @@ void TCP_Client::start_async()
 
 	if (choosen_action == 0)
 	{
-		std::shared_ptr<Book> book = std::shared_ptr<Book>(new Book("How to C++", "Ich", "Isn't a title enough?", "FH-Kiel", 2017, "666-666-666", 10));
+		std::shared_ptr<Book> book = std::shared_ptr<Book>(new Book());
+		book.get()->constructorBook("How to C++", "Ich", "Isn't a title enough?", "FH-Kiel", 2017, "666-666-666", 10);
 		ActionAddBook addBook;
 		addBook.payload_struct.book = book;
 		addBook.parseToPayload();

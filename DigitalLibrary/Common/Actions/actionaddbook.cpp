@@ -63,7 +63,9 @@ bool ActionAddBook::parseToStruct(std::shared_ptr<char> newPayload)
 		return false;
 	try
 	{
-		payload_struct.book = std::shared_ptr<Book>(new Book(title, author, summary, publisher, year, isbn, amount));
+		std::shared_ptr<Book> book = std::shared_ptr<Book>(new Book());
+		book.get()->constructorBook(title, author, summary, publisher, year, isbn, amount);
+		payload_struct.book = book;
 	}
 	catch (std::exception& e)
 	{
