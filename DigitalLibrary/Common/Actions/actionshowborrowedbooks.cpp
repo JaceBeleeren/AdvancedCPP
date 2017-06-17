@@ -128,7 +128,7 @@ bool ActionShowBorrowedBooks::response_parseToStruct(std::shared_ptr<char> newPa
 				unsigned int amountBorrowed = Protocol::charToUInt(response_payload.get() + response_size);
 				response_size += sizeof(unsigned int);
 
-				book.get()->borrowedByUser.insert(std::make_pair(userId, amountBorrowed));//insert new userId/amountBorroed-pair
+			//	book.get()->borrowedByUser.insert(std::make_pair(userId, amountBorrowed));//insert new userId/amountBorroed-pair
 			}
 		}
 		catch (std::exception& e)
@@ -193,220 +193,220 @@ bool ActionShowBorrowedBooks::response_parseToStruct(std::shared_ptr<char> newPa
 
 bool ActionShowBorrowedBooks::response_parseToPayload()
 {
-	unsigned int add;
-	response_size = 0;
-	if (!response_payload)
-		response_payload = std::shared_ptr<char>(new char[Protocol::MAX_PAYLOAD_SIZE + 1], Protocol::array_deleter<char>());
+	//unsigned int add;
+	//response_size = 0;
+	//if (!response_payload)
+	//	response_payload = std::shared_ptr<char>(new char[Protocol::MAX_PAYLOAD_SIZE + 1], Protocol::array_deleter<char>());
 
-	unsigned int sizeBooks = 0; //number of books send to client
-	unsigned int sizeUsers = 0; //number of users send to client
+	//unsigned int sizeBooks = 0; //number of books send to client
+	//unsigned int sizeUsers = 0; //number of users send to client
 
-	//unsigned int sizeBooks
-	add = sizeof(unsigned int);
-	if (!check_response_size(response_size + add))
-		return false;
-	unsigned int sizeBooksAdress = response_size;
-	//Protocol::uintToChar(sizeBooks, response_payload.get() + response_size);//cant be written yet since size is not known yet
-	response_size += add;
+	////unsigned int sizeBooks
+	//add = sizeof(unsigned int);
+	//if (!check_response_size(response_size + add))
+	//	return false;
+	//unsigned int sizeBooksAdress = response_size;
+	////Protocol::uintToChar(sizeBooks, response_payload.get() + response_size);//cant be written yet since size is not known yet
+	//response_size += add;
 
-	//std::map<unsigned int, std::shared_ptr<User>> tempUsers;
+	////std::map<unsigned int, std::shared_ptr<User>> tempUsers;
 
-	//add needed books to response_payload
-	std::map<unsigned int, std::shared_ptr<Book>>::iterator itBooks;
-	for (itBooks = Book::books.begin(); itBooks != Book::books.end(); itBooks++)
-	{
-		if (itBooks->second.get()->getBorrowed() <= 0)
-			break; //no need to add book with no borrowed books
+	////add needed books to response_payload
+	//std::map<unsigned int, std::shared_ptr<Book>>::iterator itBooks;
+	//for (itBooks = Book::books.begin(); itBooks != Book::books.end(); itBooks++)
+	//{
+	//	if (itBooks->second.get()->getBorrowed() <= 0)
+	//		break; //no need to add book with no borrowed books
 
-		sizeBooks++;//increment number of books
+	//	sizeBooks++;//increment number of books
 
-		//unsigned int id
-		add = sizeof(unsigned int);
-		if (!check_response_size(response_size + add))
-			return false;
-		Protocol::uintToChar(itBooks->second.get()->getId(), response_payload.get() + response_size);//4bytes
-		response_size += add;
+	//	//unsigned int id
+	//	add = sizeof(unsigned int);
+	//	if (!check_response_size(response_size + add))
+	//		return false;
+	//	Protocol::uintToChar(itBooks->second.get()->getId(), response_payload.get() + response_size);//4bytes
+	//	response_size += add;
 
-		//std::string title
-		add = itBooks->second.get()->title.size();
-		if (!check_response_size(response_size + add))
-			return false;
-		std::copy(itBooks->second.get()->title.begin(), itBooks->second.get()->title.end(), response_payload.get() + response_size);
-		response_size += add;
+	//	//std::string title
+	//	add = itBooks->second.get()->title.size();
+	//	if (!check_response_size(response_size + add))
+	//		return false;
+	//	std::copy(itBooks->second.get()->title.begin(), itBooks->second.get()->title.end(), response_payload.get() + response_size);
+	//	response_size += add;
 
-		add = sizeof(char);
-		if (!check_response_size(response_size + add))
-			return false;
-		response_payload.get()[response_size] = '\0';
-		response_size += add;
+	//	add = sizeof(char);
+	//	if (!check_response_size(response_size + add))
+	//		return false;
+	//	response_payload.get()[response_size] = '\0';
+	//	response_size += add;
 
-		//std::string author
-		add = itBooks->second.get()->author.size();
-		if (!check_response_size(response_size + add))
-			return false;
-		std::copy(itBooks->second.get()->author.begin(), itBooks->second.get()->author.end(), response_payload.get() + response_size);
-		response_size += add;
+	//	//std::string author
+	//	add = itBooks->second.get()->author.size();
+	//	if (!check_response_size(response_size + add))
+	//		return false;
+	//	std::copy(itBooks->second.get()->author.begin(), itBooks->second.get()->author.end(), response_payload.get() + response_size);
+	//	response_size += add;
 
-		add = sizeof(char);
-		if (!check_response_size(response_size + add))
-			return false;
-		response_payload.get()[response_size] = '\0';
-		response_size += add;
+	//	add = sizeof(char);
+	//	if (!check_response_size(response_size + add))
+	//		return false;
+	//	response_payload.get()[response_size] = '\0';
+	//	response_size += add;
 
-		//std::string summary
-		add = itBooks->second.get()->summary.size();
-		if (!check_response_size(response_size + add))
-			return false;
-		std::copy(itBooks->second.get()->summary.begin(), itBooks->second.get()->summary.end(), response_payload.get() + response_size);
-		response_size += add;
+	//	//std::string summary
+	//	add = itBooks->second.get()->summary.size();
+	//	if (!check_response_size(response_size + add))
+	//		return false;
+	//	std::copy(itBooks->second.get()->summary.begin(), itBooks->second.get()->summary.end(), response_payload.get() + response_size);
+	//	response_size += add;
 
-		add = sizeof(char);
-		if (!check_response_size(response_size + add))
-			return false;
-		response_payload.get()[response_size] = '\0';
-		response_size += add;
+	//	add = sizeof(char);
+	//	if (!check_response_size(response_size + add))
+	//		return false;
+	//	response_payload.get()[response_size] = '\0';
+	//	response_size += add;
 
-		//std::string publisher
-		add = itBooks->second.get()->publisher.size();
-		if (!check_response_size(response_size + add))
-			return false;
-		std::copy(itBooks->second.get()->publisher.begin(), itBooks->second.get()->publisher.end(), response_payload.get() + response_size);
-		response_size += add;
+	//	//std::string publisher
+	//	add = itBooks->second.get()->publisher.size();
+	//	if (!check_response_size(response_size + add))
+	//		return false;
+	//	std::copy(itBooks->second.get()->publisher.begin(), itBooks->second.get()->publisher.end(), response_payload.get() + response_size);
+	//	response_size += add;
 
-		add = sizeof(char);
-		if (!check_response_size(response_size + add))
-			return false;
-		response_payload.get()[response_size] = '\0';
-		response_size += add;
+	//	add = sizeof(char);
+	//	if (!check_response_size(response_size + add))
+	//		return false;
+	//	response_payload.get()[response_size] = '\0';
+	//	response_size += add;
 
-		//unsigned int year
-		add = sizeof(unsigned int);
-		if (!check_response_size(response_size + add))
-			return false;
-		Protocol::uintToChar(itBooks->second.get()->year, response_payload.get() + response_size);//4bytes
-		response_size += add;
+	//	//unsigned int year
+	//	add = sizeof(unsigned int);
+	//	if (!check_response_size(response_size + add))
+	//		return false;
+	//	Protocol::uintToChar(itBooks->second.get()->year, response_payload.get() + response_size);//4bytes
+	//	response_size += add;
 
-		//std::string isbn
-		add = itBooks->second.get()->getIsbn().size();
-		if (!check_response_size(response_size + add))
-			return false;
-		std::copy(itBooks->second.get()->getIsbn().begin(), itBooks->second.get()->getIsbn().end(), response_payload.get() + response_size);
-		response_size += add;
+	//	//std::string isbn
+	//	add = itBooks->second.get()->getIsbn().size();
+	//	if (!check_response_size(response_size + add))
+	//		return false;
+	//	std::copy(itBooks->second.get()->getIsbn().begin(), itBooks->second.get()->getIsbn().end(), response_payload.get() + response_size);
+	//	response_size += add;
 
-		add = sizeof(char);
-		if (!check_response_size(response_size + add))
-			return false;
-		response_payload.get()[response_size] = '\0';
-		response_size += add;
+	//	add = sizeof(char);
+	//	if (!check_response_size(response_size + add))
+	//		return false;
+	//	response_payload.get()[response_size] = '\0';
+	//	response_size += add;
 
-		//unsigned int amount
-		add = sizeof(unsigned int);
-		if (!check_response_size(response_size + add))
-			return false;
-		Protocol::uintToChar(itBooks->second.get()->getAmount(), response_payload.get() + response_size);//4bytes
-		response_size += add;
+	//	//unsigned int amount
+	//	add = sizeof(unsigned int);
+	//	if (!check_response_size(response_size + add))
+	//		return false;
+	//	Protocol::uintToChar(itBooks->second.get()->getAmount(), response_payload.get() + response_size);//4bytes
+	//	response_size += add;
 
-		//unsigned int sizeBorrowedByUser //size of map borrowedByUser
-		add = sizeof(unsigned int);
-		if (!check_response_size(response_size + add))
-			return false;
-		unsigned int borrowedByUserAdress = response_size;
-		unsigned int borrowedByUserSize = 0;
-		//Protocol::uintToChar(borrowedByUserSize, response_payload.get() + response_size);//set after we know how big is the map
-		response_size += add;
+	//	//unsigned int sizeBorrowedByUser //size of map borrowedByUser
+	//	add = sizeof(unsigned int);
+	//	if (!check_response_size(response_size + add))
+	//		return false;
+	//	unsigned int borrowedByUserAdress = response_size;
+	//	unsigned int borrowedByUserSize = 0;
+	//	//Protocol::uintToChar(borrowedByUserSize, response_payload.get() + response_size);//set after we know how big is the map
+	//	response_size += add;
 
-		std::map<unsigned int, unsigned int>::iterator itBorrowedByUser;//key: userID value: amount borrowed
-		for (itBorrowedByUser = itBooks->second.get()->borrowedByUser.begin(); itBorrowedByUser != itBooks->second.get()->borrowedByUser.end(); itBorrowedByUser++)
-		{
-			if (itBorrowedByUser->second <= 0)
-				break; //not needed to add
+	//	std::map<unsigned int, unsigned int>::iterator itBorrowedByUser;//key: userID value: amount borrowed
+	//	for (itBorrowedByUser = itBooks->second.get()->borrowedByUser.begin(); itBorrowedByUser != itBooks->second.get()->borrowedByUser.end(); itBorrowedByUser++)
+	//	{
+	//		if (itBorrowedByUser->second <= 0)
+	//			break; //not needed to add
 
-			//insert user with amountBorrowed to map borrowedByUser
+	//		//insert user with amountBorrowed to map borrowedByUser
 
-			//unsigned int key/userId
-			add = sizeof(unsigned int);
-			if (!check_response_size(response_size + add))
-				return false;
-			Protocol::uintToChar(itBorrowedByUser->first, response_payload.get() + response_size);//4bytes
-			response_size += add;
+	//		//unsigned int key/userId
+	//		add = sizeof(unsigned int);
+	//		if (!check_response_size(response_size + add))
+	//			return false;
+	//		Protocol::uintToChar(itBorrowedByUser->first, response_payload.get() + response_size);//4bytes
+	//		response_size += add;
 
-			//unsigned int amount
-			add = sizeof(unsigned int);
-			if (!check_response_size(response_size + add))
-				return false;
-			Protocol::uintToChar(itBorrowedByUser->second, response_payload.get() + response_size);//4bytes
-			response_size += add;
+	//		//unsigned int amount
+	//		add = sizeof(unsigned int);
+	//		if (!check_response_size(response_size + add))
+	//			return false;
+	//		Protocol::uintToChar(itBorrowedByUser->second, response_payload.get() + response_size);//4bytes
+	//		response_size += add;
 
-			borrowedByUserSize++;
+	//		borrowedByUserSize++;
 
-			//insert user to tempUsersMap (users to be submitted to client)
-			/*
-			if(tempUsers.find(itBorrowedByUser->first) != tempUsers.end())
-					tempUsers.insert(std::make_pair(itBorrowedByUser->first, User::getUser(itBorrowedByUser->first)));
-			*/
-		}
+	//		//insert user to tempUsersMap (users to be submitted to client)
+	//		/*
+	//		if(tempUsers.find(itBorrowedByUser->first) != tempUsers.end())
+	//				tempUsers.insert(std::make_pair(itBorrowedByUser->first, User::getUser(itBorrowedByUser->first)));
+	//		*/
+	//	}
 
-		//unsigned int sizeBorrowedByUser is known and can finally be written
-		Protocol::uintToChar(borrowedByUserSize, response_payload.get() + borrowedByUserAdress);
-	}
+	//	//unsigned int sizeBorrowedByUser is known and can finally be written
+	//	Protocol::uintToChar(borrowedByUserSize, response_payload.get() + borrowedByUserAdress);
+	//}
 
-	//unsigned int sizeBooks can finally be written
-	Protocol::uintToChar(sizeBooks, response_payload.get() + sizeBooksAdress);
+	////unsigned int sizeBooks can finally be written
+	//Protocol::uintToChar(sizeBooks, response_payload.get() + sizeBooksAdress);
 
-	//unsigned int sizeUsers
-	add = sizeof(unsigned int);
-	if (!check_response_size(response_size + add))
-		return false;
-	unsigned int sizeUsersAdress = response_size;
-	//Protocol::uintToChar(sizeUsers, response_payload.get() + response_size);//cant be written yet since size is not known yet
-	response_size += add;
+	////unsigned int sizeUsers
+	//add = sizeof(unsigned int);
+	//if (!check_response_size(response_size + add))
+	//	return false;
+	//unsigned int sizeUsersAdress = response_size;
+	////Protocol::uintToChar(sizeUsers, response_payload.get() + response_size);//cant be written yet since size is not known yet
+	//response_size += add;
 
-	//add needed users to response_payload
-	/*
-	std::map<unsigned int, std::shared_ptr<User>>::iterator itUsers;
-	for (itUsers = tempUsers.begin(); itUsers != tempUsers.end(); itUsers++)
-	{
+	////add needed users to response_payload
+	///*
+	//std::map<unsigned int, std::shared_ptr<User>>::iterator itUsers;
+	//for (itUsers = tempUsers.begin(); itUsers != tempUsers.end(); itUsers++)
+	//{
 
-		//std::string
-		add = response_struct.string.size();
-		if (!check_response_size(response_size + add))
-			return false;
-		std::copy(itUsers->second.get()->string.begin(), itUsers->second.get()->string.end(), response_payload.get() + response_size);
-		response_size += add;
+	//	//std::string
+	//	add = response_struct.string.size();
+	//	if (!check_response_size(response_size + add))
+	//		return false;
+	//	std::copy(itUsers->second.get()->string.begin(), itUsers->second.get()->string.end(), response_payload.get() + response_size);
+	//	response_size += add;
 
-		add = sizeof(char);
-		if (!check_response_size(response_size + add))
-			return false;
-		response_payload.get()[response_size] = '\0';
-		response_size += add;
+	//	add = sizeof(char);
+	//	if (!check_response_size(response_size + add))
+	//		return false;
+	//	response_payload.get()[response_size] = '\0';
+	//	response_size += add;
 
-		//unsigned int
-		add = sizeof(unsigned int);
-		if (!check_response_size(response_size + add))
-			return false;
-		Protocol::uintToChar(itUsers->second.get()->uint, itUsers->second.get()->get() + response_size);//4bytes
-		response_size += add;
+	//	//unsigned int
+	//	add = sizeof(unsigned int);
+	//	if (!check_response_size(response_size + add))
+	//		return false;
+	//	Protocol::uintToChar(itUsers->second.get()->uint, itUsers->second.get()->get() + response_size);//4bytes
+	//	response_size += add;
 
-		//int
-		add = sizeof(int);
-		if (!check_response_size(response_size + add))
-			return false;
-		Protocol::uintToChar(itUsers->second.get()->int, response_payload.get() + response_size);//4bytes
-		response_size += add;
+	//	//int
+	//	add = sizeof(int);
+	//	if (!check_response_size(response_size + add))
+	//		return false;
+	//	Protocol::uintToChar(itUsers->second.get()->int, response_payload.get() + response_size);//4bytes
+	//	response_size += add;
 
-		//char/unsigned char
-		add = sizeof(char);
-		if (!check_response_size(response_size + add))
-			return false;
-		response_payload.get()[response_size] = itUsers->second.get()->char;
-		response_size += add;
-	}
-	*/
-	
-	//unsigned int sizeUsers can finally be written
-	Protocol::uintToChar(sizeUsers, response_payload.get() + sizeUsersAdress);//cant be written yet since size is not known yet
+	//	//char/unsigned char
+	//	add = sizeof(char);
+	//	if (!check_response_size(response_size + add))
+	//		return false;
+	//	response_payload.get()[response_size] = itUsers->second.get()->char;
+	//	response_size += add;
+	//}
+	//*/
+	//
+	////unsigned int sizeUsers can finally be written
+	//Protocol::uintToChar(sizeUsers, response_payload.get() + sizeUsersAdress);//cant be written yet since size is not known yet
 
-	if (response_size > Protocol::MAX_PAYLOAD_SIZE)
-		return false;
+	//if (response_size > Protocol::MAX_PAYLOAD_SIZE)
+	//	return false;
 	return true;
 }

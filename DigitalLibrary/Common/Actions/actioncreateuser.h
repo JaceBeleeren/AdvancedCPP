@@ -1,5 +1,7 @@
 #pragma once
 #include "actiondatagramInterface.h"
+#include "..\User.h"
+
 class ActionCreateUser :
 	public ActionDatagramInterface
 {
@@ -11,10 +13,7 @@ public:
 	static const unsigned int action = Protocol::ACTION_CREATE_USER;
 	struct PayloadStruct
 	{
-		std::string user;
-		std::string password;
-		unsigned int permissions;
-		//User class?
+		std::shared_ptr<User> user;
 	};
 	PayloadStruct payload_struct;
 	bool parseToStruct(std::shared_ptr<char> payload);

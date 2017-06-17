@@ -1,5 +1,16 @@
 #include "tcp_connection.h"
-
+#include "../Common/Actions/actioncreateuser.h"
+#include "../Common/Actions/actionmodifyuser.h"
+#include "../Common/Actions/actiondeleteuser.h"
+#include "..\Common\Actions\actionaddbook.h"
+#include "..\Common\Actions\actiondeletebook.h"
+#include "..\Common\Actions\actionlogin.h"
+#include "..\Common\Actions\actionlogout.h"
+#include "..\Common\Actions\actionmodifybook.h"
+#include "..\Common\Actions\actionshowbooks.h"
+#include "..\Common\Actions\actionshowborrowedbooks.h"
+#include "..\Common\Actions\actionshowusers.h"
+#include "..\Common\Actions\actionborrowbook.h"
 
 
 TCP_Connection::TCP_Connection(boost::asio::io_service& io_service) : socket(io_service), errorcount(0), id(0)
@@ -135,6 +146,162 @@ void TCP_Connection::handle_read_payload(const boost::system::error_code& error,
 			response_following = 0;
 		}
 
+		else if (action == Protocol::ACTION_CREATE_USER)
+		{
+			ActionCreateUser createUser; 
+			createUser.parseToStruct(payload);
+			std::cout << "User created" <<std::endl;
+
+			createUser.response_struct.id = 222; 
+			createUser.response_struct.response = "User created";
+			createUser.response_parseToPayload();
+			response_action_payload = createUser.response_payload;
+			response_payload_size = createUser.response_size;
+			response_action = createUser.action_response;
+			response_following = 0;
+		}
+
+		else if (action == Protocol::ACTION_MODIFY_USER)
+		{
+			ActionModifyUser modifyUser;
+
+			modifyUser.parseToStruct(payload);
+			std::cout << "Following changes are received:" << std::endl;
+			std::cout << "\nUsername:" << /*modifyUser.payload_struct.user.get()->username << */ std::endl;
+			std::cout << "\nFirstName:" /*<< modifyUser.payload_struct.user.get()->fName */<< std::endl;
+			std::cout << "\nLastName:" /*<< modifyUser.payload_struct.user.get()->lName*/ << std::endl;
+			std::cout << "\nMobile Phone:" /*<< modifyUser.payload_struct.user.get()->mPhone*/ << std::endl;
+			std::cout << "\nCity:" /*<< modifyUser.payload_struct.user.get()->city*/ << std::endl; 
+
+			modifyUser.response_struct.success = true; 
+			modifyUser.response_struct.response ="Changes have been submitted!";
+			modifyUser.response_parseToPayload();
+			response_action_payload = modifyUser.response_payload;
+			response_payload_size = modifyUser.response_size;
+			response_action = modifyUser.action_response;
+			response_following = 0;
+
+		}
+
+		else if (action == Protocol::ACTION_DELETE_USER)
+		{
+			ActionDeleteUser deleteUser; 
+			deleteUser.parseToStruct(payload); 
+		//	std::string name = deleteUser.payload_struct.user.get()->username;
+			 
+
+			deleteUser.payload_struct.user.get()->deleteUser(deleteUser.payload_struct.user.get()->username);
+			std::cout << "User deleted" << std::endl;			
+			
+			deleteUser.response_struct.success = true; 
+			deleteUser.response_struct.response = /*name +*/ "has been deleted";
+			response_action_payload = deleteUser.response_payload;
+			response_payload_size = deleteUser.response_size;
+			response_action = deleteUser.action_response;
+			response_following = 0;
+		}
+
+		else if (action == Protocol::ACTION_BORROW_BOOK)
+		{
+			ActionBorrowBook borrowBook;
+			borrowBook.parseToStruct(payload);
+			std::cout << "Borrowed Book:" << std::endl;
+
+			
+			borrowBook.response_struct.success = true;
+			borrowBook.response_struct.response = "Book has been borrowed";
+			response_action_payload = borrowBook.response_payload;
+			response_payload_size = borrowBook.response_size;
+			response_action = borrowBook.action_response;
+			response_following = 0;
+		}
+		else if (action == Protocol::ACTION_DELETE_BOOK)
+		{
+			ActionDeleteBook deleteBook;
+			deleteBook.parseToStruct(payload);
+			std::cout << "Delete Book with ID" << deleteBook.payload_struct.id << std::endl;
+
+
+
+			deleteBook.response_struct.success = true;
+			deleteBook.response_struct.response = "Book has been deleted";
+			response_action_payload = deleteBook.response_payload;
+			response_payload_size = deleteBook.response_size;
+			response_action = deleteBook.action_response;
+			response_following = 0;
+		}
+		else if (action == Protocol::ACTION_LOGIN)
+		{
+
+		}
+		else if (action == Protocol::ACTION_LOGOUT)
+		{
+			ActionLogout logout; 
+			logout.parseToStruct(payload);
+			std::cout << "Logout" << std::endl;
+
+			logout.response_struct.success = true;
+			response_action_payload = logout.response_payload;
+			response_payload_size = logout.response_size;
+			response_action = logout.action_response;
+			response_following = 0;
+		}
+		else if (action == Protocol::ACTION_MODIFY_BOOK)
+		{
+			ActionModifyBook modBook;
+			modBook.parseToStruct(payload);
+			std::cout << "Modify Book" << std::endl;
+
+			/*std::cout << "Title: " << modBook.payload_struct.book.get()->title << std::endl;
+			std::cout << "Author: " << modBook.payload_struct.book.get()->author << std::endl;
+			std::cout << "Summary: " << modBook.payload_struct.book.get()->summary << std::endl;
+			std::cout << "Year: " << modBook.payload_struct.book.get()->year << std::endl;
+			std::cout << "ISBN: " << modBook.payload_struct.book.get()->getIsbn() << std::endl;
+			std::cout << "Amount: " << modBook.payload_struct.book.get()->getAmount() << std::endl;*/
+
+			modBook.response_struct.success = true;
+			response_action_payload = modBook.response_payload;
+			response_payload_size = modBook.response_size;
+			response_action = modBook.action_response;
+			response_following = 0;
+		}
+		else if (action == Protocol::ACTION_SHOW_BOOKS)
+		{
+			ActionShowBooks showB;
+			showB.parseToStruct(payload);
+			std::cout << "Show Books" << std::endl;
+
+			showB.response_struct;
+			response_action_payload = showB.response_payload;
+			response_payload_size = showB.response_size;
+			response_action = showB.action_response;
+			response_following = 0;
+		}
+		else if (action == Protocol::ACTION_SHOW_BORROWED_BOOKS)
+		{
+			ActionShowBorrowedBooks showBB;
+			showBB.parseToStruct(payload);
+			std::cout << "Show borrowed Books" << std::endl;
+
+			showBB.response_struct;
+			response_action_payload = showBB.response_payload;
+			response_payload_size = showBB.response_size;
+			response_action = showBB.action_response;
+			response_following = 0;
+
+		}
+		else if (action == Protocol::ACTION_SHOW_USERS)
+		{
+			ActionShowUsers showUser;
+			showUser.parseToStruct(payload);
+			std::cout << "Show Users" << std::endl;
+
+			showUser.response_struct;
+			response_action_payload = showUser.response_payload;
+			response_payload_size = showUser.response_size;
+			response_action = showUser.action_response;
+			response_following = 0;
+		}
 		else
 		{
 			std::cout << std::endl << "Received action " << std::to_string(action) << " is not a valid action!" << std::endl;

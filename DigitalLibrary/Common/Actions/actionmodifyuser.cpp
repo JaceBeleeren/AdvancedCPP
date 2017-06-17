@@ -1,4 +1,5 @@
 #include "actionmodifyuser.h"
+#include "..\User.h"
 
 
 
@@ -17,34 +18,83 @@ bool ActionModifyUser::parseToStruct(std::shared_ptr<char> newPayload)
 	payload = newPayload;
 	payload_size = 0;
 
-	/*
-	//std::string
+	//std::string username
 	if (!check_payload_size(payload_size))
 		return false;
-	payload_struct.string = std::string(payload.get() + payload_size);
-	payload_size = payload_struct.string.size() + sizeof(char);
+	std::string username = std::string(payload.get() + payload_size);
+	payload_size = username.size() + 1;
+	
 
-	//unsigned int
+	// int userType
 	if (!check_payload_size(payload_size))
 		return false;
-	payload_struct.uint = Protocol::charToUInt(payload.get() + payload_size);
-	payload_size += sizeof(unsigned int);
+	unsigned int userType = Protocol::charToInt(payload.get() + payload_size);
+	payload_size += sizeof(int);
+		
 
-	//int
+	
+	//std::string fName
 	if (!check_payload_size(payload_size))
 		return false;
-	payload_struct.int = Protocol::charToInt(payload.get() + payload_size);
+	std::string fName = std::string(payload.get() + payload_size);
+	payload_size = fName.size() + 1;
+
+	//std::string lName
+	if (!check_payload_size(payload_size))
+		return false;
+	std::string lName = std::string(payload.get() + payload_size);
+	payload_size += lName.size() + 1;
+
+	//std::string password
+	if (!check_payload_size(payload_size))
+		return false;
+	std::string password = std::string(payload.get() + payload_size);
+	payload_size += password.size() + 1;
+
+
+	// int mPhone
+	if (!check_payload_size(payload_size))
+		return false;
+	unsigned int mPhone = Protocol::charToInt(payload.get() + payload_size);
 	payload_size += sizeof(int);
 
-	//char/unsigned char
+	//std::string city
 	if (!check_payload_size(payload_size))
 		return false;
-	payload_struct.char = *(payload.get() + payload_size);
-	payload_size += sizeof(char);
-	*/
+	std::string city = std::string(payload.get() + payload_size);
+	payload_size += city.size() + 1;
 
 	if (payload_size > Protocol::MAX_PAYLOAD_SIZE)
 		return false;
+
+	try
+	{
+		/*std::shared_ptr<User> user;
+
+		user.get()->username = username;
+		user.get()->fName = fName;
+		user.get()->lName = lName;
+		user.get()->mPhone = mPhone;
+		user.get()->city = city;
+		user.get()->userType = userType;		
+
+		payload_struct.user = user;*/
+	}
+	catch (std::exception& e)
+	{
+		//message printed in book constructor
+		return false;
+	}
+
+
+	
+	std::string errorMessage = payload_struct.user.get()->modifyUser(username,fName, lName, mPhone, city);
+	if (errorMessage == "")
+	{
+		std::cout << errorMessage;
+		return false;
+	}
+
 	return true;
 }
 
@@ -55,12 +105,13 @@ bool ActionModifyUser::parseToPayload()
 	if (!payload)
 		payload = std::shared_ptr<char>(new char[Protocol::MAX_PAYLOAD_SIZE + 1], Protocol::array_deleter<char>());
 
-	/*
-	//std::string
-	add = payload_struct.string.size();
+
+	// std::string username
+
+	add = payload_struct.user.get()->username.size();
 	if (!check_payload_size(payload_size + add))
 		return false;
-	std::copy(payload_struct.string.begin(), payload_struct.string.end(), payload.get() + payload_size);
+	std::copy(payload_struct.user.get()->username.begin(), payload_struct.user.get()->username.end(), payload.get() + payload_size);
 	payload_size += add;
 
 	add = sizeof(char);
@@ -69,27 +120,55 @@ bool ActionModifyUser::parseToPayload()
 	payload.get()[payload_size] = '\0';
 	payload_size += add;
 
-	//unsigned int
-	add = sizeof(unsigned int);
+	// std::string fName
+	add = payload_struct.user.get()->fName.size();
 	if (!check_payload_size(payload_size + add))
 		return false;
-	Protocol::uintToChar(payload_struct.uint, payload.get() + payload_size);//4bytes
+	std::cout << "Name" << payload_struct.user.get()->fName; // Getter entfernen
+	std::copy(payload_struct.user.get()->fName.begin(), payload_struct.user.get()->fName.end(), payload.get() + payload_size);
 	payload_size += add;
 
-	//int
-	add = sizeof(int);
-	if (!check_payload_size(payload_size + add))
-		return false;
-	Protocol::intToChar(payload_struct.int, payload.get() + payload_size);//4bytes
-	payload_size += add;
-
-	//char/unsigned char
 	add = sizeof(char);
 	if (!check_payload_size(payload_size + add))
 		return false;
-	payload.get()[payload_size] = payload_struct.char;
-	size += add;
-	*/
+	payload.get()[payload_size] = '\0';
+	payload_size += add;
+
+
+	// std::string lName
+	add = payload_struct.user.get()->lName.size();
+	if (!check_payload_size(payload_size + add))
+		return false;
+	std::copy(payload_struct.user.get()->lName.begin(), payload_struct.user.get()->lName.end(), payload.get() + payload_size);
+	payload_size += add;
+
+	add = sizeof(char);
+	if (!check_payload_size(payload_size + add))
+		return false;
+	payload.get()[payload_size] = '\0';
+	payload_size += add;
+
+
+	//unsigned int mPhone
+	add = sizeof(unsigned int);
+	if (!check_payload_size(payload_size + add))
+		return false;
+	Protocol::intToChar(payload_struct.user.get()->mPhone, payload.get() + payload_size);   //4bytes
+	payload_size += add;
+
+	// std::string city
+	add = payload_struct.user.get()->city.size();
+	if (!check_payload_size(payload_size + add))
+		return false;
+	std::copy(payload_struct.user.get()->city.begin(), payload_struct.user.get()->city.end(), payload.get() + payload_size);
+	payload_size += add;
+
+	add = sizeof(char);
+	if (!check_payload_size(payload_size + add))
+		return false;
+	payload.get()[payload_size] = '\0';
+	payload_size += add;
+
 
 	if (payload_size > Protocol::MAX_PAYLOAD_SIZE)
 		return false;
@@ -101,31 +180,17 @@ bool ActionModifyUser::response_parseToStruct(std::shared_ptr<char> newPayload)
 	response_payload = newPayload;
 	response_size = 0;
 
-	/*
-	//std::string
+	//unsigned char success
 	if (!check_response_size(response_size))
 		return false;
-	response_struct.string = std::string(response_payload.get() + response_size);
-	response_size = response_struct.string.size() + sizeof(char);
+	response_struct.response = *(response_payload.get() + response_size);
+	response_size += 1;
 
-	//unsigned int
+	//std::string response
 	if (!check_response_size(response_size))
 		return false;
-	response_struct.uint = Protocol::charToUInt(response_payload.get() + response_size);
-	response_size += sizeof(unsigned int);
-
-	//int
-	if (!check_response_size(response_size))
-		return false;
-	response_struct.int = Protocol::charToUInt(response_payload.get() + response_size);
-	response_size += sizeof(unsigned int);
-
-	//char/unsigned char
-	if (!check_response_size(response_size))
-		return false;
-	response_struct.char = *(response_payload.get() + response_size);
-	response_size += sizeof(char);
-	*/
+	response_struct.response = std::string(response_payload.get() + response_size);
+	response_size = response_struct.response.size() + 1;
 
 	if (response_size > Protocol::MAX_PAYLOAD_SIZE)
 		return false;
@@ -139,12 +204,18 @@ bool ActionModifyUser::response_parseToPayload()
 	if (!response_payload)
 		response_payload = std::shared_ptr<char>(new char[Protocol::MAX_PAYLOAD_SIZE + 1], Protocol::array_deleter<char>());
 
-	/*
-	//std::string
-	add = response_struct.string.size();
+	// unsigned char success
+		add = sizeof(unsigned char);
 	if (!check_response_size(response_size + add))
 		return false;
-	std::copy(response_struct.string.begin(), response_struct.string.end(), response_payload.get() + response_size);
+	response_payload.get()[response_size] = response_struct.success;
+	response_size += sizeof(unsigned char);
+
+	//std::string response
+	add = response_struct.response.size();
+	if (!check_response_size(response_size + add))
+		return false;
+	std::copy(response_struct.response.begin(), response_struct.response.end(), response_payload.get() + response_size);
 	response_size += add;
 
 	add = sizeof(char);
@@ -152,28 +223,6 @@ bool ActionModifyUser::response_parseToPayload()
 		return false;
 	response_payload.get()[response_size] = '\0';
 	response_size += add;
-
-	//unsigned int
-	add = sizeof(unsigned int);
-	if (!check_response_size(response_size + add))
-		return false;
-	Protocol::uintToChar(response_struct.uint, response_payload.get() + response_size);//4bytes
-	response_size += add;
-
-	//int
-	add = sizeof(int);
-	if (!check_response_size(response_size + add))
-		return false;
-	Protocol::uintToChar(response_struct.int, response_payload.get() + response_size);//4bytes
-	response_size += add;
-
-	//char/unsigned char
-	add = sizeof(char);
-	if (!check_response_size(response_size + add))
-		return false;
-	response_payload.get()[response_size] = response_struct.char;
-	response_size += add;
-	*/
 
 	if (response_size > Protocol::MAX_PAYLOAD_SIZE)
 		return false;

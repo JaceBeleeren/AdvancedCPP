@@ -13,6 +13,7 @@ public:
 	{
 		unsigned int id;
 		unsigned int userId;
+	//	std::shared_ptr<User> u; 
 	};
 	PayloadStruct payload_struct;
 	bool parseToStruct(std::shared_ptr<char> payload);

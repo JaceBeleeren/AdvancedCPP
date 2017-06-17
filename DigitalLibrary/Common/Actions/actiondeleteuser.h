@@ -1,5 +1,7 @@
 #pragma once
+#include "..\User.h"
 #include "actiondatagramInterface.h"
+
 class ActionDeleteUser :
 	public ActionDatagramInterface
 {
@@ -11,8 +13,9 @@ public:
 	static const unsigned int action = Protocol::ACTION_DELETE_USER;
 	struct PayloadStruct
 	{
-		unsigned int id;
-		//User class?
+		std::shared_ptr<User> user;
+		std::string username; 
+
 	};
 	PayloadStruct payload_struct;
 	bool parseToStruct(std::shared_ptr<char> payload);
@@ -23,6 +26,7 @@ public:
 	struct ResponseStruct
 	{
 		unsigned char success;
+		std::string response;
 	};
 	ResponseStruct response_struct;
 	bool response_parseToStruct(std::shared_ptr<char> payload);

@@ -11,6 +11,8 @@ public:
 	static const unsigned int action = Protocol::ACTION_SHOW_USERS;
 	struct PayloadStruct
 	{
+
+
 	};
 	PayloadStruct payload_struct;
 	bool parseToStruct(std::shared_ptr<char> payload);

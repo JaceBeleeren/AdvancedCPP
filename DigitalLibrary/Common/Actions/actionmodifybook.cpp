@@ -68,7 +68,33 @@ bool ActionModifyBook::parseToStruct(std::shared_ptr<char> newPayload)
 	if (payload_size > Protocol::MAX_PAYLOAD_SIZE)
 		return false;
 
+	
 	std::string errorMessage = payload_struct.book.get()->modifyBook(title, author, summary, publisher, year, isbn, amount, id);
+	
+
+	try
+	{
+		std::shared_ptr<Book> book;
+
+		book.get()->title = title;
+		book.get()->author = author;
+		book.get()->summary = summary;
+		book.get()->publisher = publisher;
+		book.get()->year = year;
+		book.get()->setIsbn(isbn);
+		book.get()->setAmount(amount);
+
+		payload_struct.book = book; 
+	}
+	catch (std::exception& e)
+	{
+		//message printed in book constructor
+		return false;
+	}
+
+
+	
+
 	if(errorMessage == "")
 	{
 		std::cout << errorMessage;

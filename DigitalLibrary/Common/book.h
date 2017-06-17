@@ -6,7 +6,8 @@
 #include <map>
 #include <string>
 #include <tuple>
-#include  <functional>
+#include <functional>
+#include "User.h"
 
 class Book : public std::enable_shared_from_this<Book>
 {
@@ -25,9 +26,23 @@ public:
 	static std::shared_ptr<Book> getBook(unsigned int id); //throws exception std::invalid_argument
 	static std::map<unsigned int, std::tuple<unsigned int, unsigned int>> getBorrowedBooks(); //key = bokId, first value = userId, second value = amount
 
-	static std::string borrow(unsigned int id, unsigned int userId);
-	std::string borrow(unsigned int userId);
-	static std::string returnBook(unsigned int id, unsigned int userId);
+
+	static std::list <std::shared_ptr<Book>> Book::getBooks(std::string title);  // search by title
+	static std::list <std::shared_ptr<Book>> Book::getBooksbyAuthor(std::string author);
+	static std::list <std::shared_ptr<Book>> Book::getBooks(std::string title, std::string author);
+	static std::list <std::shared_ptr<Book>> Book::getBooks(std::string title, std::string author, std::string publisher);  // by Title and author and publisher
+	static std::list <std::shared_ptr<Book>> Book::getBooks(std::string title, std::string author, std::string publisher, int year);  // by Title and author and publisher
+	static std::list <std::shared_ptr<Book>> Book::getBooksbyPubl(std::string publisher);
+	static std::list <std::shared_ptr<Book>> Book::getBooksbyPublandAuth(std::string author, std::string publisher);
+	static std::shared_ptr<Book> Book::getBookbyISBN(std::string isbn);
+	std::shared_ptr<Book> Book::getBooks(int bookId);  // search by Id
+
+	void Book::borrowBook(std::shared_ptr<User> user, int id);
+
+
+	static std::string borrow(unsigned int id, std::shared_ptr<User>);
+	std::string borrow(std::string username);
+	static std::string returnBook(unsigned int id, std::string username);
 	std::string returnBook(unsigned int userId);
 
 	unsigned int getId();
@@ -42,7 +57,7 @@ public:
 	std::string setAmount(unsigned int amount); //set amount of Books availabale including borrowed books, if new amount is smaller than borrowed, borrowed will also be decreased
 	unsigned int getBorrowed(); //get amount of Books borrowed
 	//std::string setBorrowed(); //set amount of books borrowed, cant be higher than amount //not needed since books will be borrowed with borrow()
-	std::map<unsigned int, unsigned int> borrowedByUser;//key = userId, value = amount
+	std::map<std::string, unsigned int> borrowedByUser;//key = userId, value = amount
 private:
 	bool checkConstruction(bool construction = true);//check if actual constructor was already called (false) or is not called yet (true) and throws exception if its true
 	unsigned int id; //Book ID and Key for std::map Books

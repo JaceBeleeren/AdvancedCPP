@@ -1,4 +1,5 @@
 #include "book.h"
+#include "User.h"
 
 std::map<unsigned int, std::shared_ptr<Book>> Book::books;
 //constructor only sets constructed to false to indicate that constructorBook() still needs to be called
@@ -18,7 +19,7 @@ void Book::constructorBook(std::string isbn)
 	checkConstruction(false);
 	unsigned int tempId = 1;
 	std::map<unsigned int, std::shared_ptr<Book>>::iterator it;
-	for (it = books.begin(); it != books.end(); it++)
+	for (it  = books.begin(); it != books.end(); it++)
 	{
 		if (it->first >= tempId)
 			tempId++;
@@ -81,11 +82,12 @@ Book::~Book()
 {
 }
 
-std::string Book::modifyBook(std::string title, std::string author, std::string summary, std::string publisher, unsigned int year, std::string isbn, unsigned int amount, unsigned int id)
+std::string Book::modifyBook(std::string title, std::string author, std::string summary, std::string publisher, unsigned int year, std::string isbn, unsigned int amount, unsigned int id)  // static
 {
 	std::string errorMessage = "";
 	if (books.find(id) == books.end())
 	{
+		
 		errorMessage += ("\nBook with given id" + std::to_string(id) + " does not exist!");
 		return errorMessage;
 	}
@@ -108,13 +110,14 @@ std::string Book::modifyBook(std::string title, std::string author, std::string 
 	book.get()->year = year;
 	book.get()->isbn = isbn;
 	book.get()->amount = amount;
+
 	return errorMessage;
 }
 
 std::string Book::modifyBook(std::string title, std::string author, std::string summary, std::string publisher, unsigned int year, std::string isbn, unsigned int amount)
 {
 	std::string errorMessage = "";
-	checkConstruction(true);
+	//checkConstruction(true);
 	return modifyBook(title, author, summary, publisher, year, isbn, amount, this->id);
 }
 
@@ -149,62 +152,255 @@ std::shared_ptr<Book> Book::getBook(unsigned int id)
 	return book;
 }
 
-std::map<unsigned int, std::tuple<unsigned int, unsigned int>> Book::getBorrowedBooks()
+//std::map<unsigned int, std::tuple<unsigned int, unsigned int>> Book::getBorrowedBooks()
+//{
+//	std::map<unsigned int, std::tuple<unsigned int, unsigned int>> borrowedBooks;
+//	std::map<unsigned int, std::shared_ptr<Book>>::iterator itBooks;
+//	for (itBooks = books.begin(); itBooks != books.end(); itBooks++)
+//	{
+//		std::shared_ptr<Book> book = itBooks->second;
+//		std::map<unsigned int, unsigned int>::iterator itBorrowed;
+//		for (itBorrowed = book.get()->borrowedByUser.begin(); itBorrowed != book.get()->borrowedByUser.end(); itBorrowed++)
+//		{
+//			if (itBorrowed->second > 0)
+//				borrowedBooks.insert(std::make_pair(itBooks->first, std::make_tuple(itBorrowed->first, itBorrowed->second)));//bookId/key, <userId, amount>
+//		}
+//	}
+//	return borrowedBooks;
+//}
+
+std::shared_ptr<Book> Book::getBookbyISBN(std::string isbn)
 {
-	std::map<unsigned int, std::tuple<unsigned int, unsigned int>> borrowedBooks;
+	std::shared_ptr<Book> b; 
+	std::map<unsigned int, std::shared_ptr<Book>>::iterator itBooks;
+
+	for (itBooks = books.begin(); itBooks != books.end(); itBooks++)
+	{
+		if (itBooks->second.get()->getIsbn() == isbn)
+		{
+			b = itBooks->second;
+		}
+	}
+	return b ;
+}
+
+
+std::list <std::shared_ptr<Book>> Book::getBooks(std::string title)  // by Title
+{
+	//std::map<unsigned int, std::tuple<std::string, unsigned int>> searchedBooks;
+	std::list <std::shared_ptr<Book>> searchedBooks;
+	std::list<std::shared_ptr<Book>>::iterator it;
+	std::map<unsigned int, std::shared_ptr<Book>>::iterator itBooks;
+	
+	for (itBooks = books.begin(); itBooks != books.end(); itBooks++)
+	{
+		
+		it = searchedBooks.begin();
+	
+		
+			if (itBooks->second.get()->title == title)
+			{
+				searchedBooks.insert(it, itBooks->second);
+			}
+		
+		/*++it;*/
+
+		//std::map<std::string, unsigned int>::iterator itSearched;
+		//for (itSearched = book.get()->borrowedByUser.begin(); itSearched != book.get()->borrowedByUser.end(); itSearched++)
+		//{
+		//	if (itBorrowed->second > 0)
+		//		borrowedBooks.insert(std::make_pair(itBooks->first, std::make_tuple(itBorrowed->first, itBorrowed->second)));//bookId/key, <userId, amount>
+		//}
+	}
+	//it = searchedBooks.end(); 
+	return searchedBooks;
+}
+
+std::list <std::shared_ptr<Book>> Book::getBooksbyAuthor(std::string author)  // by author
+{
+	//std::map<unsigned int, std::tuple<std::string, unsigned int>> searchedBooks;
+	std::list <std::shared_ptr<Book>> searchedBooks;
+	std::map<unsigned int, std::shared_ptr<Book>>::iterator itBooks;
+	std::list<std::shared_ptr<Book>>::iterator it;
+	for (itBooks = books.begin(); itBooks != books.end(); itBooks++)
+	{
+
+		it = searchedBooks.begin();
+
+
+		if (itBooks->second.get()->author == author)
+		{
+			searchedBooks.insert(it, itBooks->second);
+		}	
+
+	}
+	return searchedBooks;
+}
+
+std::list <std::shared_ptr<Book>> Book::getBooks(std::string title, std::string author)  // by Title and author
+{
+	//std::map<unsigned int, std::tuple<std::string, unsigned int>> searchedBooks;
+	std::list <std::shared_ptr<Book>> searchedBooks;
+	std::map<unsigned int, std::shared_ptr<Book>>::iterator itBooks;
+	std::list<std::shared_ptr<Book>>::iterator it;
+	for (itBooks = books.begin(); itBooks != books.end(); itBooks++)
+	{
+
+		it = searchedBooks.begin();
+
+		if (itBooks->second.get()->title == title && itBooks->second.get()->author == author)
+		{
+			searchedBooks.insert(it, itBooks->second);
+		}
+
+	}
+	return searchedBooks;
+}
+
+std::list <std::shared_ptr<Book>> Book::getBooks(std::string title, std::string author, std::string publisher)  // by Title and author and publisher
+{
+	//std::map<unsigned int, std::tuple<std::string, unsigned int>> searchedBooks;
+	std::list <std::shared_ptr<Book>> searchedBooks;
+	std::map<unsigned int, std::shared_ptr<Book>>::iterator itBooks;
+	std::list<std::shared_ptr<Book>>::iterator it;
+	for (itBooks = books.begin(); itBooks != books.end(); itBooks++)
+	{
+
+		it = searchedBooks.begin();
+
+		if (itBooks->second.get()->title == title && itBooks->second.get()->author == author && itBooks->second.get()->publisher == publisher)
+		{
+			searchedBooks.insert(it, itBooks->second);
+		}
+
+	}
+	return searchedBooks;
+}
+
+
+std::list <std::shared_ptr<Book>> Book::getBooks(std::string title, std::string author, std::string publisher, int year)  // by Title and author and publisher
+{
+	//std::map<unsigned int, std::tuple<std::string, unsigned int>> searchedBooks;
+	std::list <std::shared_ptr<Book>> searchedBooks;
+	std::map<unsigned int, std::shared_ptr<Book>>::iterator itBooks;
+	std::list<std::shared_ptr<Book>>::iterator it;
+	for (itBooks = books.begin(); itBooks != books.end(); itBooks++)
+	{
+
+		it = searchedBooks.begin();
+
+		if (itBooks->second.get()->title == title && itBooks->second.get()->author == author 
+			&& itBooks->second.get()->publisher == publisher && itBooks->second.get()->year == year)
+		{
+			searchedBooks.insert(it, itBooks->second);
+		}
+
+
+	}
+	return searchedBooks;
+}
+
+std::list <std::shared_ptr<Book>> Book::getBooksbyPubl(std::string publisher)
+{
+	//std::map<unsigned int, std::tuple<std::string, unsigned int>> searchedBooks;
+	std::list <std::shared_ptr<Book>> searchedBooks;
+	std::map<unsigned int, std::shared_ptr<Book>>::iterator itBooks;
+	std::list<std::shared_ptr<Book>>::iterator it;
+	for (itBooks = books.begin(); itBooks != books.end(); itBooks++)
+	{
+
+		it = searchedBooks.begin();
+
+		if (itBooks->second.get()->publisher == publisher)
+		{
+			searchedBooks.insert(it, itBooks->second);
+		}
+
+	}
+	return searchedBooks;
+}
+
+
+std::list <std::shared_ptr<Book>> Book::getBooksbyPublandAuth(std::string author, std::string publisher)
+{
+	//std::map<unsigned int, std::tuple<std::string, unsigned int>> searchedBooks;
+	std::list <std::shared_ptr<Book>> searchedBooks;
+	std::map<unsigned int, std::shared_ptr<Book>>::iterator itBooks;
+	std::list<std::shared_ptr<Book>>::iterator it;
+	for (itBooks = books.begin(); itBooks != books.end(); itBooks++)
+	{
+
+		it = searchedBooks.begin();
+
+		if (itBooks->second.get()->publisher == publisher && itBooks->second.get()->author == author)
+		{
+			searchedBooks.insert(it, itBooks->second);
+		}
+
+	}
+	return searchedBooks;
+}
+
+
+std::shared_ptr<Book> Book::getBooks(int bookId)
+{
+	std::shared_ptr<Book> b;
 	std::map<unsigned int, std::shared_ptr<Book>>::iterator itBooks;
 	for (itBooks = books.begin(); itBooks != books.end(); itBooks++)
 	{
-		std::shared_ptr<Book> book = itBooks->second;
-		std::map<unsigned int, unsigned int>::iterator itBorrowed;
-		for (itBorrowed = book.get()->borrowedByUser.begin(); itBorrowed != book.get()->borrowedByUser.end(); itBorrowed++)
+		if (itBooks->second.get()->getId() == bookId)
 		{
-			if (itBorrowed->second > 0)
-				borrowedBooks.insert(std::make_pair(itBooks->first, std::make_tuple(itBorrowed->first, itBorrowed->second)));//bookId/key, <userId, amount>
+			 b = itBooks->second;
 		}
 	}
-	return borrowedBooks;
+	return b;
 }
 
-std::string Book::borrow(unsigned int id, unsigned int userId)
+
+
+
+std::string Book::borrow(unsigned int id, std::shared_ptr<User> user)
 {
+	std::map<unsigned int, std::shared_ptr<Book>>::iterator it; 
 	std::string errorMessage = "";
 	if (books.find(id) == books.end())
 	{
 		errorMessage += "\nBook with given id" + std::to_string(id) + " does not exist!";
 	}
-	//check if user exists
-	/*if (User::users.find(userId) == User::users.end())
-	{
-		errorMessage += "\nUser with given id" + std::to_string(id) + " does not exist!";
-	}
-	*/
+	
 	std::shared_ptr<Book> book = books.find(id)->second;
 	if (book.get()->borrowed >= book.get()->amount)
 	{
 		errorMessage += "\nNo book left";
 	}
+
 	if (errorMessage == "")
 	{
-		if (book.get()->borrowedByUser.find(userId) != book.get()->borrowedByUser.end())
+		if (book.get()->borrowedByUser.find(user->username) != book.get()->borrowedByUser.end())  // user is in the list
 		{
-			book.get()->borrowedByUser.find(userId)->second += 1;
+			book.get()->borrowedByUser.find(user->username)->second += 1;			
 		}
 		else
-			book.get()->borrowedByUser.insert(std::make_pair(userId, 1));
-		book.get()->borrowed += 1;
+		{
+			book.get()->borrowedByUser.insert(std::make_pair(user->username, 1));  // user insert into list
+			book.get()->borrowed += 1;
+		}
+		
+		user.get()->countBorrowedBooks = +1; 
+		user.get()->lendBooks.insert(make_pair(book.get()->getId(), book.get()->title));
+
 	}
 	return errorMessage;
 }
 
-std::string Book::borrow(unsigned int userId)
-{
-	std::string errorMessage = "";
-	checkConstruction(true);
-	return borrow(this->id, userId);
-}
+///*std::string Book::borrow(std::string username)
+//{
+//	std::string errorMessage = "";
+//	checkConstruction(true);
+//	*/return borrow(this->id, username);
+//}
 
-std::string Book::returnBook(unsigned int id, unsigned int userId)
+std::string Book::returnBook(unsigned int id, std::string username)
 {
 	std::string errorMessage = "";
 	if (books.find(id) == books.end())
@@ -218,17 +414,17 @@ std::string Book::returnBook(unsigned int id, unsigned int userId)
 	}
 	*/
 	std::shared_ptr<Book> book = books.find(id)->second;
-	if (book.get()->borrowedByUser.find(userId) == book.get()->borrowedByUser.end())
+	if (book.get()->borrowedByUser.find(username) == book.get()->borrowedByUser.end())
 	{
-		errorMessage += "\nUser with id " + std::to_string(userId) + " does not have borrowed Book with id " + std::to_string(id);
+		errorMessage += "\nUser with id " + username + " does not have borrowed Book with id " + std::to_string(id);
 	}
-	else if(book.get()->borrowedByUser.find(userId)->second <= 0)
+	else if(book.get()->borrowedByUser.find(username)->second <= 0)
 	{
-		errorMessage += "\nUser with id " + std::to_string(userId) + " does not have borrowed Book with id " + std::to_string(id);
+		errorMessage += "\nUser with id " + username + " does not have borrowed Book with id " + std::to_string(id);
 	}
 	if (errorMessage == "")
 	{
-		book.get()->borrowedByUser.find(userId)->second -= 1;
+		book.get()->borrowedByUser.find(username)->second -= 1;
 		if (book <= 0)//one book returned which should not exists. why not er are happy with that
 			book.get()->amount++;
 		else
@@ -237,11 +433,11 @@ std::string Book::returnBook(unsigned int id, unsigned int userId)
 	return errorMessage;
 }
 
-std::string Book::returnBook(unsigned int userId)
-{
-	checkConstruction(true);
-	return returnBook(this->id, userId);
-}
+//std::string Book::returnBook(std::string username)
+//{
+//	checkConstruction(true);
+//	return returnBook(this->id, userId);
+//}
 
 unsigned int Book::getId()
 {
@@ -293,7 +489,7 @@ std::string Book::setAmount(unsigned int amount)
 
 unsigned int Book::getBorrowed()
 {
-	checkConstruction(true);
+	//checkConstruction(true);
 	return this->borrowed;
 }
 
@@ -316,4 +512,6 @@ bool Book::checkConstruction(bool construction)
 	}
 	return true;
 }
+
+
 
