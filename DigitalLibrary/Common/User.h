@@ -28,7 +28,7 @@ public:
 	static std::shared_ptr<User> getUser(std::string username);
 
 
-	static std::string modifyUser(std::string username, std::string firstName, std::string lastName, int mPhone, std::string city);
+	static std::string modifyUser( std::string firstName, std::string lastName, int mPhone, std::string city, std::string username);
 	std::string modifyUser(std::string firstName, std::string lastName, int mPhone, std::string city);
 	int changePassword(User user, std::string oldPassword, std::string newPassword);
 
@@ -36,7 +36,7 @@ public:
 	std::string deleteUser();
 
 	static std::map<std::string, std::shared_ptr<User>> users;
-	static std::map<unsigned int, std::tuple<unsigned int, unsigned int>> getLendBooks(); //key = username, first value = bookId, second value = amount
+	static std::map<unsigned int, std::tuple<unsigned int, unsigned int>> getLendBooks(std::shared_ptr<User> u); //key = username, first value = bookId, second value = amount
 
 	
 

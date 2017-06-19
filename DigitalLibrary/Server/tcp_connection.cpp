@@ -128,6 +128,7 @@ void TCP_Connection::handle_read_payload(const boost::system::error_code& error,
 			ActionAddBook addBook;
 			addBook.parseToStruct(payload);
 			std::cout << "Add Book" << std::endl;
+			std::cout << "BookID:" << addBook.payload_struct.book.get()->getId() << std::endl;
 			std::cout << "Title: " << addBook.payload_struct.book.get()->title << std::endl;
 			std::cout << "Author: " << addBook.payload_struct.book.get()->author << std::endl;
 			std::cout << "Summary: " << addBook.payload_struct.book.get()->summary << std::endl;
@@ -136,7 +137,7 @@ void TCP_Connection::handle_read_payload(const boost::system::error_code& error,
 			std::cout << "Amount: " << addBook.payload_struct.book.get()->getAmount() << std::endl;
 
 			//response
-			addBook.response_struct.id = 666;
+			addBook.response_struct.id = addBook.payload_struct.book.get()->getId();
 			addBook.response_struct.response = "Book with title " + addBook.payload_struct.book.get()->title + "received";
 			addBook.response_parseToPayload();
 
@@ -153,7 +154,7 @@ void TCP_Connection::handle_read_payload(const boost::system::error_code& error,
 			std::cout << "User created" <<std::endl;
 
 			createUser.response_struct.id = 222; 
-			createUser.response_struct.response = "User created";
+			createUser.response_struct.response = "User with the username '"+ createUser.payload_struct.user.get()->username +"' created";
 			createUser.response_parseToPayload();
 			response_action_payload = createUser.response_payload;
 			response_payload_size = createUser.response_size;
@@ -167,11 +168,11 @@ void TCP_Connection::handle_read_payload(const boost::system::error_code& error,
 
 			modifyUser.parseToStruct(payload);
 			std::cout << "Following changes are received:" << std::endl;
-			std::cout << "\nUsername:" << /*modifyUser.payload_struct.user.get()->username << */ std::endl;
-			std::cout << "\nFirstName:" /*<< modifyUser.payload_struct.user.get()->fName */<< std::endl;
-			std::cout << "\nLastName:" /*<< modifyUser.payload_struct.user.get()->lName*/ << std::endl;
-			std::cout << "\nMobile Phone:" /*<< modifyUser.payload_struct.user.get()->mPhone*/ << std::endl;
-			std::cout << "\nCity:" /*<< modifyUser.payload_struct.user.get()->city*/ << std::endl; 
+			std::cout << "Username:" << modifyUser.payload_struct.user.get()->username <<  std::endl;
+			std::cout << "FirstName:" << modifyUser.payload_struct.user.get()->fName << std::endl;
+			std::cout << "LastName:" << modifyUser.payload_struct.user.get()->lName << std::endl;
+			std::cout << "Mobile Phone:" << modifyUser.payload_struct.user.get()->mPhone << std::endl;
+			std::cout << "City:" << modifyUser.payload_struct.user.get()->city << std::endl; 
 
 			modifyUser.response_struct.success = true; 
 			modifyUser.response_struct.response ="Changes have been submitted!";
@@ -207,9 +208,10 @@ void TCP_Connection::handle_read_payload(const boost::system::error_code& error,
 			borrowBook.parseToStruct(payload);
 			std::cout << "Borrowed Book:" << std::endl;
 
+			Book::borrow(borrowBook.payload_struct.id, borrowBook.payload_struct.u);
 			
 			borrowBook.response_struct.success = true;
-			borrowBook.response_struct.response = "Book has been borrowed";
+			borrowBook.response_struct.response = "Book has been borrowed by " + borrowBook.payload_struct.username;
 			response_action_payload = borrowBook.response_payload;
 			response_payload_size = borrowBook.response_size;
 			response_action = borrowBook.action_response;
@@ -272,6 +274,7 @@ void TCP_Connection::handle_read_payload(const boost::system::error_code& error,
 			std::cout << "Show Books" << std::endl;
 
 			showB.response_struct;
+			showB.response_parseToPayload();
 			response_action_payload = showB.response_payload;
 			response_payload_size = showB.response_size;
 			response_action = showB.action_response;
@@ -297,6 +300,7 @@ void TCP_Connection::handle_read_payload(const boost::system::error_code& error,
 			std::cout << "Show Users" << std::endl;
 
 			showUser.response_struct;
+			showUser.response_parseToPayload();
 			response_action_payload = showUser.response_payload;
 			response_payload_size = showUser.response_size;
 			response_action = showUser.action_response;

@@ -187,7 +187,7 @@ bool ActionAddBook::response_parseToStruct(std::shared_ptr<char> newPayload)
 	if (!check_response_size(response_size))
 		return false;
 	response_struct.response = std::string(response_payload.get() + response_size);
-	response_size = response_struct.response.size() + sizeof(char);
+	response_size += response_struct.response.size() + sizeof(char);
 
 	if (response_size > Protocol::MAX_PAYLOAD_SIZE)
 		return false;

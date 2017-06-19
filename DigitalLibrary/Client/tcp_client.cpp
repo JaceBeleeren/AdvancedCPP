@@ -1,5 +1,6 @@
 
 #include "tcp_client.h"
+#include <tuple>
 #include "..\Common\InputFct.h"
 #include "..\Common\user.h"
 #include "..\Common\protocol.h"
@@ -22,10 +23,8 @@
 TCP_Client::TCP_Client(std::string newHost, boost::asio::io_service& io_service, int id)
 	: socket(io_service), errorcount(0), reconnect_count(0), host(newHost)
 {
-	std::shared_ptr<Book> book1 = std::shared_ptr<Book>(new Book());
-	book1.get()->constructorBook("testtitle", "testauthor", "testsummary", "testpublisher", 2017, "testisbn2", 10);
-	int id1 = book1.get()->getId();
-	std::cout << "Amount of different books: " << Book::books.size() << " Test created test book: " << Book::books.find(id)->second.get()->title << ":" << Book::books.find(id)->second.get()->getIsbn() << " ID: " << id << std::endl;
+	
+	int id1 = 1;
 	connect(id1);
 }
 
@@ -63,6 +62,7 @@ void TCP_Client::start_async()
 	unsigned char choosen_action = 0;
 
 
+
 	std::cout << "\n Welcome to the digital library system.\n What do you like to do ?" << std::endl;
 	std::cout << "Press 'l' for login \n or press c for create a new account" << std::endl;
 	std::cin >> input;
@@ -84,22 +84,20 @@ void TCP_Client::start_async()
 
 			if (choosen_action == 'm')   // modify user
 			{
-
-
 				std::string fname;
 				std::string lname;
 				int nr;
 				std::string city;
 
-				std::cout << "Enter the data to change:\n" << std::endl;
+				std::cout << "Enter the data to change:" << std::endl;
 				std::cout << "Username: You are not allowed to change your username." << std::endl;
-				std::cout << "\n First Name:" << std::endl;
+				std::cout << "First Name:" << std::endl;
 				std::cin >> fname;
-				std::cout << "\n Last Name:" << std::endl;
+				std::cout << "Last Name:" << std::endl;
 				std::cin >> lname;
-				std::cout << "\n Mobile Phone:" << std::endl;
+				std::cout << "Mobile Phone:" << std::endl;
 				std::cin >> nr;
-				std::cout << "\n City\n" << std::endl;
+				std::cout << "City\n" << std::endl;
 				std::cin >> city;
 
 				loggedin.get()->fName = fname;
@@ -116,52 +114,51 @@ void TCP_Client::start_async()
 				following = 0;
 			}
 
-			if (choosen_action == 'd')  // delete user
-			{
-				char check;
-				std::cout << "Are you sure?\n Enter y or n" << std::endl;
-				std::cin >> check;
+			//if (choosen_action == 'd')  // delete user
+			//{
+			//	char check;
+			//	std::cout << "Are you sure?\n Enter y or n" << std::endl;
+			//	std::cin >> check;
 
-				switch (check)
-				case 'y':
-				{
-					if (/*u.get()->lendBooks.empty() ==*/ true)
-					{
+			//	switch (check)
+			//	{
+			//	case 'y':
 
+			//		if (/*u.get()->lendBooks.empty() ==*/ true)
+			//		{
+			//			ActionDeleteUser deleteUser;
+			//			deleteUser.payload_struct.user = loggedin;
+			//			deleteUser.parseToPayload();
+			//			action_payload = deleteUser.payload;
+			//			payload_size = deleteUser.payload_size;
+			//			action = deleteUser.action;
+			//			following = 0;
+			//			//	u->deleteUser(u->username);
+			//		}
+			//		else
+			//		{
+			//			std::map<unsigned int, std::string>::iterator it;
+			//			std::cout << "You cannot delete account when you still have borrowed books" << std::endl;
 
-						//u->deleteUser(u->username);	
-						ActionDeleteUser deleteUser;
-						deleteUser.payload_struct.user = loggedin;
-						deleteUser.parseToPayload();
-						action_payload = deleteUser.payload;
-						payload_size = deleteUser.payload_size;
-						action = deleteUser.action;
-						following = 0;
-
-					}
-					else
-					{
-						std::map<unsigned int, std::string>::iterator it;
-						std::cout << "You cannot delete account when you still have borrowed books" << std::endl;
-
-						for (it = u.get()->lendBooks.begin(); it != u.get()->lendBooks.end(); it++)
-						{
-							std::cout << "BookID	:" << it->first << "	 " << "Book Title	:" << it->second << std::endl;
-							std::cout << "" << std::endl;
-							std::cout << "=========================================================" << std::endl;
-						}
-						start_async();
-					}
+			//			for (it = u.get()->lendBooks.begin(); it != u.get()->lendBooks.end(); it++)
+			//			{
+			//				std::cout << "BookID	:" << it->first << "	 " << "Book Title	:" << it->second << std::endl;
+			//				std::cout << "" << std::endl;
+			//				std::cout << "=========================================================" << std::endl;
+			//			}
+			//			start_async();
+			//		}
 
 
-				case 'n':
-				{
-					std::cout << "Nothing happens" << std::endl;
-					in.userScreen(loggedin);
-				}
+			//	case 'n':
+			//	{
+			//		std::cout << "Nothing happens" << std::endl;
+			//		in.userScreen(loggedin);
+			//	}
 
-				}
-			}
+
+			//	}
+			//}
 
 			if (choosen_action == 's')  // search book
 			{
@@ -212,10 +209,21 @@ void TCP_Client::start_async()
 					std::cin >> input;
 					if (input != 0)
 					{
-						b.borrow(input, loggedin);
+						Book::borrow(input, loggedin);	
+						loggedin.get()->getLendBooks(loggedin);
+
+						ActionBorrowBook borrow;
+						borrow.payload_struct.u = loggedin;
+						borrow.payload_struct.id = input;
+						borrow.payload_struct.username = loggedin.get()->username;
+						borrow.parseToPayload();
+						action_payload = borrow.payload;
+						payload_size = borrow.payload_size;
+						action = borrow.action;
+						following = 0;
 					}
 
-
+					
 
 				}
 				if (title != "0" && author != "0" && publisher == "0" && year == 0)
@@ -243,7 +251,16 @@ void TCP_Client::start_async()
 					std::cin >> input;
 					if (input != 0)
 					{
-						b.borrow(input, loggedin);
+						Book::borrow(input, loggedin);
+						ActionBorrowBook borrow;
+						borrow.payload_struct.u = loggedin;
+						borrow.payload_struct.id = input;
+						borrow.payload_struct.username = loggedin.get()->username;
+						borrow.parseToPayload();
+						action_payload = borrow.payload;
+						payload_size = borrow.payload_size;
+						action = borrow.action;
+						following = 0;
 					}
 
 				}
@@ -272,7 +289,16 @@ void TCP_Client::start_async()
 					std::cin >> input;
 					if (input != 0)
 					{
-						b.borrow(input, loggedin);
+						Book::borrow(input, loggedin);
+						ActionBorrowBook borrow;
+						borrow.payload_struct.u = loggedin;
+						borrow.payload_struct.id = input;
+						borrow.payload_struct.username = loggedin.get()->username;
+						borrow.parseToPayload();
+						action_payload = borrow.payload;
+						payload_size = borrow.payload_size;
+						action = borrow.action;
+						following = 0;
 					}
 
 				}
@@ -301,7 +327,16 @@ void TCP_Client::start_async()
 					std::cin >> input;
 					if (input != 0)
 					{
-						b.borrow(input, loggedin);
+						Book::borrow(input, loggedin);	
+						ActionBorrowBook borrow;
+						borrow.payload_struct.u = loggedin;
+						borrow.payload_struct.id = input;
+						borrow.payload_struct.username = loggedin.get()->username;
+						borrow.parseToPayload();
+						action_payload = borrow.payload;
+						payload_size = borrow.payload_size;
+						action = borrow.action;
+						following = 0;
 					}
 
 				}
@@ -330,7 +365,16 @@ void TCP_Client::start_async()
 					std::cin >> input;
 					if (input != 0)
 					{
-						b.borrow(input, loggedin);
+						Book::borrow(input, loggedin);
+						ActionBorrowBook borrow;
+						borrow.payload_struct.u = loggedin;
+						borrow.payload_struct.id = input;
+						borrow.payload_struct.username = loggedin.get()->username;
+						borrow.parseToPayload();
+						action_payload = borrow.payload;
+						payload_size = borrow.payload_size;
+						action = borrow.action;
+						following = 0;
 					}
 
 				}
@@ -359,7 +403,16 @@ void TCP_Client::start_async()
 					std::cin >> input;
 					if (input != 0)
 					{
-						b.borrow(input, loggedin);
+						Book::borrow(input, loggedin);
+						ActionBorrowBook borrow;
+						borrow.payload_struct.u = loggedin;
+						borrow.payload_struct.id = input;
+						borrow.payload_struct.username = loggedin.get()->username;
+						borrow.parseToPayload();
+						action_payload = borrow.payload;
+						payload_size = borrow.payload_size;
+						action = borrow.action;
+						following = 0;
 					}
 
 				}
@@ -388,7 +441,16 @@ void TCP_Client::start_async()
 					std::cin >> input;
 					if (input != 0)
 					{
-						b.borrow(input, loggedin);
+						Book::borrow(input, loggedin);
+						ActionBorrowBook borrow;
+						borrow.payload_struct.u = loggedin;
+						borrow.payload_struct.id = input;
+						borrow.payload_struct.username = loggedin.get()->username;
+						borrow.parseToPayload();
+						action_payload = borrow.payload;
+						payload_size = borrow.payload_size;
+						action = borrow.action;
+						following = 0;
 					}
 				}
 			}
@@ -422,7 +484,16 @@ void TCP_Client::start_async()
 				std::cout << "(if you do not like to borrow the book enter '0')" << std::endl;
 				if (input != 0)
 				{
-					b.get()->borrow(input, loggedin);
+					Book::borrow(input, loggedin);
+					ActionBorrowBook borrow;
+					borrow.payload_struct.u = loggedin;
+					borrow.payload_struct.id = input;
+					borrow.payload_struct.username = loggedin.get()->username;
+					borrow.parseToPayload();
+					action_payload = borrow.payload;
+					payload_size = borrow.payload_size;
+					action = borrow.action;
+					following = 0;
 				}
 			}
 
@@ -430,15 +501,15 @@ void TCP_Client::start_async()
 			{
 				std::map<unsigned int, std::string>::iterator it;
 
-				std::cout << "You lend the following book(s):" << std::endl;
-				std::cout << "=========================================================" << std::endl;
-
-				for (it = u.get()->lendBooks.begin(); it != u.get()->lendBooks.end(); it++)
-				{
-					std::cout << "BookID	:" << it->first << "	 " << "Book Title	:" << it->second << std::endl;
-					std::cout << "" << std::endl;
+					std::cout << "You lend the following book(s):" << std::endl;
 					std::cout << "=========================================================" << std::endl;
-				}
+
+					for (it = u.get()->lendBooks.begin(); it != u.get()->lendBooks.end(); it++)
+					{
+						std::cout << "BookID	:" << it->first << "	 " << "Book Title	:" << it->second << std::endl;
+						std::cout << "" << std::endl;
+						std::cout << "=========================================================" << std::endl;
+					}				
 			}
 
 			if (choosen_action == 'e')  // exit / logout
@@ -464,9 +535,9 @@ void TCP_Client::start_async()
 				boost::asio::buffer(payload.get(), Protocol::HEADER_SIZE + payload_size),
 				boost::bind(&TCP_Client::handle_write, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, action)
 			);
-
-
 		}
+
+
 		if (loggedin->userType == 2)
 		{
 			choosen_action = in.employeeScreen(loggedin);
@@ -660,7 +731,16 @@ void TCP_Client::start_async()
 					std::cin >> input;
 					if (input != 0)
 					{
-						b.borrow(input, loggedin);
+						Book::borrow(input, loggedin);
+						ActionBorrowBook borrow;
+						borrow.payload_struct.u = loggedin;
+						borrow.payload_struct.id = input;
+						borrow.payload_struct.username = loggedin.get()->username;
+						borrow.parseToPayload();
+						action_payload = borrow.payload;
+						payload_size = borrow.payload_size;
+						action = borrow.action;
+						following = 0;
 					}
 
 
@@ -691,7 +771,16 @@ void TCP_Client::start_async()
 					std::cin >> input;
 					if (input != 0)
 					{
-						b.borrow(input, loggedin);
+						Book::borrow(input, loggedin);
+						ActionBorrowBook borrow;
+						borrow.payload_struct.u = loggedin;
+						borrow.payload_struct.id = input;
+						borrow.payload_struct.username = loggedin.get()->username;
+						borrow.parseToPayload();
+						action_payload = borrow.payload;
+						payload_size = borrow.payload_size;
+						action = borrow.action;
+						following = 0;
 					}
 
 				}
@@ -720,7 +809,16 @@ void TCP_Client::start_async()
 					std::cin >> input;
 					if (input != 0)
 					{
-						b.borrow(input, loggedin);
+						Book::borrow(input, loggedin);
+						ActionBorrowBook borrow;
+						borrow.payload_struct.u = loggedin;
+						borrow.payload_struct.id = input;
+						borrow.payload_struct.username = loggedin.get()->username;
+						borrow.parseToPayload();
+						action_payload = borrow.payload;
+						payload_size = borrow.payload_size;
+						action = borrow.action;
+						following = 0;
 					}
 
 				}
@@ -749,7 +847,16 @@ void TCP_Client::start_async()
 					std::cin >> input;
 					if (input != 0)
 					{
-						b.borrow(input, loggedin);
+						Book::borrow(input, loggedin);
+						ActionBorrowBook borrow;
+						borrow.payload_struct.u = loggedin;
+						borrow.payload_struct.id = input;
+						borrow.payload_struct.username = loggedin.get()->username;
+						borrow.parseToPayload();
+						action_payload = borrow.payload;
+						payload_size = borrow.payload_size;
+						action = borrow.action;
+						following = 0;
 					}
 
 				}
@@ -778,7 +885,16 @@ void TCP_Client::start_async()
 					std::cin >> input;
 					if (input != 0)
 					{
-						b.borrow(input, loggedin);
+						Book::borrow(input, loggedin);
+						ActionBorrowBook borrow;
+						borrow.payload_struct.u = loggedin;
+						borrow.payload_struct.id = input;
+						borrow.payload_struct.username = loggedin.get()->username;
+						borrow.parseToPayload();
+						action_payload = borrow.payload;
+						payload_size = borrow.payload_size;
+						action = borrow.action;
+						following = 0;
 					}
 
 				}
@@ -807,7 +923,16 @@ void TCP_Client::start_async()
 					std::cin >> input;
 					if (input != 0)
 					{
-						b.borrow(input, loggedin);
+						Book::borrow(input, loggedin);
+						ActionBorrowBook borrow;
+						borrow.payload_struct.u = loggedin;
+						borrow.payload_struct.id = input;
+						borrow.payload_struct.username = loggedin.get()->username;
+						borrow.parseToPayload();
+						action_payload = borrow.payload;
+						payload_size = borrow.payload_size;
+						action = borrow.action;
+						following = 0;
 					}
 
 				}
@@ -836,7 +961,16 @@ void TCP_Client::start_async()
 					std::cin >> input;
 					if (input != 0)
 					{
-						b.borrow(input, loggedin);
+						Book::borrow(input, loggedin);
+						ActionBorrowBook borrow;
+						borrow.payload_struct.u = loggedin;
+						borrow.payload_struct.id = input;
+						borrow.payload_struct.username = loggedin.get()->username;
+						borrow.parseToPayload();
+						action_payload = borrow.payload;
+						payload_size = borrow.payload_size;
+						action = borrow.action;
+						following = 0;
 					}
 				}
 			}
@@ -870,7 +1004,17 @@ void TCP_Client::start_async()
 				std::cout << "(if you do not like to borrow the book enter '0')" << std::endl;
 				if (input != 0)
 				{
-					b.get()->borrow(input, loggedin);
+					Book::borrow(input, loggedin);
+					ActionBorrowBook borrow;
+					borrow.payload_struct.u = loggedin;
+					borrow.payload_struct.id = input;
+					borrow.payload_struct.username = loggedin.get()->username;
+					borrow.parseToPayload();
+					action_payload = borrow.payload;
+					payload_size = borrow.payload_size;
+					action = borrow.action;
+					following = 0;
+					
 				}
 			}
 
@@ -930,16 +1074,17 @@ void TCP_Client::start_async()
 					std::cout << "" << std::endl;
 					std::cout << "============================================================" << std::endl;
 					//std::cout << "Avaible:" << it->second.get()->title << std::endl;
-
-					ActionShowBooks showB;
-					showB.payload_struct;
-					showB.parseToPayload();
-					action_payload = showB.payload;
-					payload_size = showB.payload_size;
-					action = showB.action;
-					following = 0;
 				}
+
+				ActionShowBooks showB;
+				showB.payload_struct;
+				showB.parseToPayload();
+				action_payload = showB.payload;
+				payload_size = showB.payload_size;
+				action = showB.action;
+				following = 0;
 			}
+
 
 			if (choosen_action == 'x')
 			{
@@ -967,83 +1112,36 @@ void TCP_Client::start_async()
 			}
 
 			if (choosen_action == 'u')
-				{
-					User u;
-					std::map<std::string, std::shared_ptr<User>>::iterator it;
-					for (it = u.users.begin(); it != u.users.end(); it++)
-					{
-						std::cout << "============================================================" << std::endl;
-						std::cout << "" << std::endl;
-						std::cout << "Username	    :" << it->second.get()->username << std::endl;
-						std::cout << "First Name    :" << it->second.get()->fName << std::endl;
-						std::cout << "Last Name     :" << it->second.get()->lName << std::endl;
-						std::cout << "City          :" << it->second.get()->city << std::endl;
-						std::cout << "Mobile Phone  :" << it->second.get()->mPhone << std::endl;
-						std::cout << "Usertype      :" << it->second.get()->userType << std::endl;
-						std::cout << "Number of borrowes books:" << it->second.get()->countBorrowedBooks << std::endl;
-						std::cout << "" << std::endl;
-						std::cout << "============================================================" << std::endl;
-						//std::cout << "Avaible:" << it->second.get()->title << std::endl;
-					}
-					ActionShowUsers showUsers;
-					showUsers.payload_struct;
-					showUsers.parseToPayload();
-					action_payload = showUsers.payload;
-					payload_size = showUsers.payload_size;
-					action = showUsers.action;
-					following = 0;
-				}
+			{
+				//User u;
+				//std::map<std::string, std::shared_ptr<User>>::iterator it;
+				//for (it = u.users.begin(); it != u.users.end(); it++)
+				//{
+				//	std::cout << "============================================================" << std::endl;
+				//	std::cout << "" << std::endl;
+				//	std::cout << "Username	    :" << it->second.get()->username << std::endl;
+				//	std::cout << "First Name    :" << it->second.get()->fName << std::endl;
+				//	std::cout << "Last Name     :" << it->second.get()->lName << std::endl;
+				//	std::cout << "City          :" << it->second.get()->city << std::endl;
+				//	std::cout << "Mobile Phone  :" << it->second.get()->mPhone << std::endl;
+				//	std::cout << "Usertype      :" << it->second.get()->userType << std::endl;
+				//	std::cout << "Number of borrowes books:" << it->second.get()->countBorrowedBooks << std::endl;
+				//	std::cout << "" << std::endl;
+				//	std::cout << "============================================================" << std::endl;
+				//	//std::cout << "Avaible:" << it->second.get()->title << std::endl;
+				//}
+				ActionShowUsers showUsers;
+				showUsers.payload_struct;
+				showUsers.parseToPayload();
+				action_payload = showUsers.payload;
+				payload_size = showUsers.payload_size;
+				action = showUsers.action;
+				following = 0;
+			}
 
 			if (choosen_action == 'd')
-				{
-					if (/*u.get()->lendBooks.empty() ==*/ true)
-					{
-						std::shared_ptr<char> payload = std::shared_ptr<char>(new char[Protocol::HEADER_SIZE + Protocol::MAX_PAYLOAD_SIZE + 1], Protocol::array_deleter<char>());//payload including header
-						std::shared_ptr<char> action_payload;//payload excluding header
-						unsigned char action;
-						unsigned char following;
-						unsigned int payload_size;
-
-						//u->deleteUser(u->username);	
-						ActionDeleteUser deleteUser;
-						deleteUser.payload_struct.user = loggedin;
-						deleteUser.parseToPayload();
-						action_payload = deleteUser.payload;
-						payload_size = deleteUser.payload_size;
-						action = deleteUser.action;
-						following = 0;
-
-
-						Protocol::encode_header(payload_size, action, following, payload);
-						memcpy(payload.get() + Protocol::HEADER_SIZE, action_payload.get(), payload_size);
-						payload.get()[Protocol::HEADER_SIZE + payload_size] = '\0';
-						std::cout << "Input Size:" << payload_size << std::endl;
-
-						boost::asio::async_write
-						(
-							socket,
-							boost::asio::buffer(payload.get(), Protocol::HEADER_SIZE + payload_size),
-							boost::bind(&TCP_Client::handle_write, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, action)
-						);
-
-
-					}
-					else
-					{
-						std::map<unsigned int, std::string>::iterator it;
-						std::cout << "You cannot delete account when you still have borrowed books" << std::endl;
-
-						for (it = u.get()->lendBooks.begin(); it != u.get()->lendBooks.end(); it++)
-						{
-							std::cout << "BookID	:" << it->first << "	 " << "Book Title	:" << it->second << std::endl;
-							std::cout << "" << std::endl;
-							std::cout << "=========================================================" << std::endl;
-						}
-						start_async();
-					}
-				}
-
-			if (choosen_action == 'e')
+			{
+				if (/*u.get()->lendBooks.empty() ==*/ true)
 				{
 					std::shared_ptr<char> payload = std::shared_ptr<char>(new char[Protocol::HEADER_SIZE + Protocol::MAX_PAYLOAD_SIZE + 1], Protocol::array_deleter<char>());//payload including header
 					std::shared_ptr<char> action_payload;//payload excluding header
@@ -1051,43 +1149,60 @@ void TCP_Client::start_async()
 					unsigned char following;
 					unsigned int payload_size;
 
-					ActionLogout logout;
-					logout.payload_struct;
-					logout.parseToPayload();
-					action_payload = logout.payload;
-					payload_size = logout.payload_size;
-					action = logout.action;
+					//u->deleteUser(u->username);	
+					ActionDeleteUser deleteUser;
+					deleteUser.payload_struct.user = loggedin;
+					deleteUser.parseToPayload();
+					action_payload = deleteUser.payload;
+					payload_size = deleteUser.payload_size;
+					action = deleteUser.action;
 					following = 0;
-
-					Protocol::encode_header(payload_size, action, following, payload);
-					memcpy(payload.get() + Protocol::HEADER_SIZE, action_payload.get(), payload_size);
-					payload.get()[Protocol::HEADER_SIZE + payload_size] = '\0';
-					std::cout << "Input Size:" << payload_size << std::endl;
-
-					boost::asio::async_write
-					(
-						socket,
-						boost::asio::buffer(payload.get(), Protocol::HEADER_SIZE + payload_size),
-						boost::bind(&TCP_Client::handle_write, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, action)
-					);
 				}
+				else
+				{
+					std::map<unsigned int, std::string>::iterator it;
+					std::cout << "You cannot delete account when you still have borrowed books" << std::endl;
 
-				Protocol::encode_header(payload_size, action, following, payload);
-				memcpy(payload.get() + Protocol::HEADER_SIZE, action_payload.get(), payload_size);
-				payload.get()[Protocol::HEADER_SIZE + payload_size] = '\0';
-				std::cout << "Input Size:" << payload_size << std::endl;
-
-				boost::asio::async_write
-				(
-					socket,
-					boost::asio::buffer(payload.get(), Protocol::HEADER_SIZE + payload_size),
-					boost::bind(&TCP_Client::handle_write, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, action)
-				);
+					for (it = u.get()->lendBooks.begin(); it != u.get()->lendBooks.end(); it++)
+					{
+						std::cout << "BookID	:" << it->first << "	 " << "Book Title	:" << it->second << std::endl;
+						std::cout << "" << std::endl;
+						std::cout << "=========================================================" << std::endl;
+					}
+					start_async();
+				}
 			}
-			
 
+			if (choosen_action == 'e')
+			{
+				
+
+				ActionLogout logout;
+				logout.payload_struct;
+				logout.parseToPayload();
+				action_payload = logout.payload;
+				payload_size = logout.payload_size;
+				action = logout.action;
+				following = 0;
 			}
-		
+				
+
+			Protocol::encode_header(payload_size, action, following, payload);
+			memcpy(payload.get() + Protocol::HEADER_SIZE, action_payload.get(), payload_size);
+			payload.get()[Protocol::HEADER_SIZE + payload_size] = '\0';
+			std::cout << "Input Size:" << payload_size << std::endl;
+
+			boost::asio::async_write
+			(
+				socket,
+				boost::asio::buffer(payload.get(), Protocol::HEADER_SIZE + payload_size),
+				boost::bind(&TCP_Client::handle_write, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, action)
+			);
+
+
+
+		}
+
 
 		if (input == 'c')
 		{
@@ -1140,7 +1255,8 @@ void TCP_Client::start_async()
 
 
 	}
-
+}
+	/*}}*/
 
 	
 	void TCP_Client::handle_write(const boost::system::error_code& error, std::size_t n, unsigned char action)
@@ -1214,40 +1330,34 @@ void TCP_Client::start_async()
 			{
 				std::cout << "Handle read payload with action " << (int)action << " and " << payload_size << " bytes" << std::endl;
 				payload.get()[payload_size] = 0; //end string if it is not already
+
 				if (action == Protocol::ACTION_ADD_BOOK_RESPONSE)
 				{
 					ActionAddBook addBookResponse;
 					addBookResponse.response_parseToStruct(payload);
 					std::cout << "Add Book Response" << std::endl;
 					std::cout << "ID: " << addBookResponse.response_struct.id << std::endl;
-					std::cout << "Response: " << addBookResponse.response_struct.response << std::endl;
+					std::cout << "Response: " << addBookResponse.response_struct.response << std::endl;			
 				}
-
-				else if (action == Protocol::ACTION_DELETE_BOOK_RESPONSE)
-				{
-					ActionDeleteBook delBookResponse;
-					delBookResponse.response_parseToStruct(payload);
-					std::cout << "Add Book Response" << std::endl;
-					std::cout << "" << delBookResponse.response_struct.success << std::endl;
-					std::cout << "Response: " << delBookResponse.response_struct.response << std::endl;
-				}
+				
 				else if (action == Protocol::ACTION_CREATE_USER_RESPONSE)
 				{
 					ActionCreateUser createUserResponse;
+					
 					createUserResponse.response_parseToStruct(payload);
 					std::cout << "Create User Response" << std::endl;
 					std::cout << "ID: " << createUserResponse.response_struct.id << std::endl;
 					std::cout << "Response: " << createUserResponse.response_struct.response << std::endl;
 
 				}
-				else if (action == Protocol::ACTION_DELETE_USER_RESPONSE)
+				/*else if (action == Protocol::ACTION_DELETE_USER_RESPONSE)
 				{
 					ActionDeleteUser deleteUserResponse;
 					deleteUserResponse.response_parseToStruct(payload);
 					std::cout << "Delete User Response" << std::endl;
 					std::cout << "ID: " << deleteUserResponse.response_struct.success << std::endl;
 					std::cout << "Response: " << deleteUserResponse.response_struct.response << std::endl;
-				}
+				}*/
 				else if (action == Protocol::ACTION_MODIFY_USER_RESPONSE)
 				{
 					ActionModifyUser modifyUserResponse;
@@ -1261,10 +1371,43 @@ void TCP_Client::start_async()
 					ActionShowUsers showUsersResponse;
 					showUsersResponse.response_parseToStruct(payload);
 					std::cout << "Show all Users Response" << std::endl;
-					/*std::cout << "ID: " << showUsersResponse.response_struct. << std::endl;
-					std::cout << "Response: " << showUsersResponse.response_struct. << std::endl;*/
+					std::cout << "" << std::endl;
+					std::list<User>::iterator it;
+					
+					for (it = showUsersResponse.response_struct.list.begin(); it != showUsersResponse.response_struct.list.end(); it++)
+					{
+						std::cout << "Username	:" << it->username << std::endl;
+						std::cout << "First Name:" << it->fName<< std::endl;
+						std::cout << "Last Name	:" << it->lName << std::endl;
+						std::cout << "Number of Borrowed Books	:" << it->countBorrowedBooks << std::endl; 
+						std::cout << "" << std::endl; 
+						std::cout << "========================================" << std::endl; 
+					}
+					
 				}
+				else if (action == Protocol::ACTION_SHOW_BOOKS_RESPONSE)
+				{
+					ActionShowBooks showBooksResponse; 
+					showBooksResponse.response_parseToStruct(payload);
+					std::cout << "Show all Books Response" << std::endl;
+					std::cout << "" << std::endl;
+					std::list<Book>::iterator it;
 
+					for (it = showBooksResponse.response_struct.list.begin(); it != showBooksResponse.response_struct.list.end(); it++)
+					{
+						std::cout << "============================================================" << std::endl;
+						std::cout << "" << std::endl;
+						
+						std::cout << "ISBN:	    :" << it->getIsbn() << std::endl;
+						std::cout << "Title	    :" << it->title << std::endl;
+						std::cout << "Author	:" << it->author << std::endl;						
+						std::cout << "Publisher :" << it->publisher << std::endl;
+						std::cout << "Year      :" << it->year << std::endl;
+						std::cout << "Amount    :" << it->getAmount() << std::endl;
+						std::cout << "" << std::endl;
+						std::cout << "============================================================" << std::endl;
+					}
+				}
 				else if (action == Protocol::ACTION_SHOW_BORROWED_BOOKS_RESPONSE)
 				{
 					ActionShowBorrowedBooks showborrowedBooksResponse;
@@ -1276,9 +1419,10 @@ void TCP_Client::start_async()
 				else if (action == Protocol::ACTION_BORROW_BOOK_RESPONSE)
 				{
 					ActionBorrowBook borrowBookResponse;
-					borrowBookResponse.response_parseToStruct(payload);
+					borrowBookResponse.response_parseToStruct(payload);								
+					
 					std::cout << "Borrow Book Response" << std::endl;
-					std::cout << "ID: " << borrowBookResponse.response_struct.success << std::endl;
+					std::cout << "Success: " << borrowBookResponse.response_struct.success << std::endl;
 					std::cout << "Response: " << borrowBookResponse.response_struct.response << std::endl;
 				}
 				else if (action == Protocol::ACTION_MODIFY_BOOK_RESPONSE)
@@ -1443,7 +1587,7 @@ void TCP_Client::start_async()
 		}		
 
 		
-
+		
 		
 	
 	

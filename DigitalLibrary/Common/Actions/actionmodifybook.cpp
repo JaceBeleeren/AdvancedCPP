@@ -27,7 +27,7 @@ bool ActionModifyBook::parseToStruct(std::shared_ptr<char> newPayload)
 	if (!check_payload_size(payload_size))
 		return false;
 	std::string title = std::string(payload.get() + payload_size);
-	payload_size = title.size() + 1;
+	payload_size += title.size() + 1;  // !
 
 	//std::string author
 	if (!check_payload_size(payload_size))
@@ -114,7 +114,7 @@ bool ActionModifyBook::parseToPayload()
 	add = sizeof(unsigned int);
 	if (!check_payload_size(payload_size + add))
 		return false;
-	Protocol::uintToChar(payload_struct.book.get()->getId(), payload.get() + payload_size);//4bytes
+	Protocol::uintToChar(payload_struct.book.get()->id, payload.get() + payload_size);//4bytes
 	payload_size += add;
 
 	//std::string title

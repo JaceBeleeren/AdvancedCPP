@@ -36,25 +36,25 @@ bool ActionCreateUser::parseToStruct(std::shared_ptr<char> newPayload)
 	if (!check_payload_size(payload_size))
 		return false;
 	std::string username = std::string(payload.get() + payload_size);
-	payload_size = username.size() + sizeof(char);
+	payload_size += username.size() + sizeof(char);
 
 	//std::string fName
 	if (!check_payload_size(payload_size))
 		return false;
 	std::string fName = std::string(payload.get() + payload_size);
-	payload_size = fName.size() + sizeof(char);
+	payload_size += fName.size() + sizeof(char);
 
 	//std::string lName
 	if (!check_payload_size(payload_size))
 		return false;
 	std::string lName = std::string(payload.get() + payload_size);
-	payload_size = lName.size() + sizeof(char);
+	payload_size += lName.size() + sizeof(char);
 
 	//std::string password
 	if (!check_payload_size(payload_size))
 		return false;
 	std::string password = std::string(payload.get() + payload_size);
-	payload_size = password.size() + sizeof(char);
+	payload_size += password.size() + sizeof(char);
 	
 
 	//int mPhone
@@ -67,13 +67,19 @@ bool ActionCreateUser::parseToStruct(std::shared_ptr<char> newPayload)
 	if (!check_payload_size(payload_size))
 		return false;
 	std::string city = std::string(payload.get() + payload_size);
-	payload_size = city.size() + sizeof(char);
+	payload_size += city.size() + sizeof(char);
 
 	if (payload_size > Protocol::MAX_PAYLOAD_SIZE)
 		return false;
 
 	try
 	{
+		std::shared_ptr<User> user = std::shared_ptr<User>(new User());
+		user.get()->constructorUser(1, username, password);
+		payload_struct.user = user; 
+
+		std::shared_ptr<User> user2 = User::getUser(username);
+		std::cout << "Password: " <<user2.get()->password << std::endl;
 		/*payload_struct.user.get()->username = username; 
 		payload_struct.user.get()->password = password; 
 		payload_struct.user.get()->userType = userType;
@@ -129,54 +135,67 @@ bool ActionCreateUser::parseToPayload()
 	payload_size += add;
 
 
-	////std::string fName
-	//add = payload_struct.user.get()->getfName().size();
-	//if (!check_payload_size(payload_size + add))
-	//	return false;
-	//std::copy(payload_struct.user.get()->getfName().begin(), payload_struct.user.get()->getfName().end(), payload.get() + payload_size);
-	//payload_size += add;
+	//std::string fName
+	add = payload_struct.user.get()->fName.size();
+	if (!check_payload_size(payload_size + add))
+		return false;
+	std::copy(payload_struct.user.get()->fName.begin(), payload_struct.user.get()->fName.end(), payload.get() + payload_size);
+	payload_size += add;
 
-	//add = sizeof(char);
-	//if (!check_payload_size(payload_size + add))
-	//	return false;
-	//payload.get()[payload_size] = '\0';
-	//payload_size += add;
+	add = sizeof(char);
+	if (!check_payload_size(payload_size + add))
+		return false;
+	payload.get()[payload_size] = '\0';
+	payload_size += add;
 
-	//
-	////std::string lName
-	//add = payload_struct.user.get()->getlName().size();
-	//if (!check_payload_size(payload_size + add))
-	//return false;
-	//std::copy(payload_struct.user.get()->getlName().begin(), payload_struct.user.get()->getlName().end(), payload.get() + payload_size);
-	//payload_size += add;
+	
+	//std::string lName
+	add = payload_struct.user.get()->lName.size();
+	if (!check_payload_size(payload_size + add))
+		return false;
+	std::copy(payload_struct.user.get()->lName.begin(), payload_struct.user.get()->lName.end(), payload.get() + payload_size);
+	payload_size += add;
 
-	//add = sizeof(char);
-	//if (!check_payload_size(payload_size + add))
-	//return false;
-	//payload.get()[payload_size] = '\0';
-	//payload_size += add;
-	//
+	add = sizeof(char);
+	if (!check_payload_size(payload_size + add))
+		return false;
+	payload.get()[payload_size] = '\0';
+	payload_size += add;
 
-	////int mPhone
-	//add = sizeof(int);
-	//if (!check_payload_size(payload_size + add))
-	//	return false;
-	//Protocol::intToChar(payload_struct.user.get()->mPhone, payload.get() + payload_size);//4bytes
-	//payload_size += add;
+	//std::string password
+	add = payload_struct.user.get()->password.size();
+	if (!check_payload_size(payload_size + add))
+		return false;
+	std::copy(payload_struct.user.get()->password.begin(), payload_struct.user.get()->password.end(), payload.get() + payload_size);
+	payload_size += add;
 
-	////std::string city
-	//add = payload_struct.user.get()->city.size();
-	//if (!check_payload_size(payload_size + add))
-	//	return false;
-	//std::copy(payload_struct.user.get()->city.begin(), payload_struct.user.get()->city.end(), payload.get() + payload_size);
-	//payload_size += add;
+	add = sizeof(char);
+	if (!check_payload_size(payload_size + add))
+		return false;
+	payload.get()[payload_size] = '\0';
+	payload_size += add;
+	
 
-	//add = sizeof(char);
-	//if (!check_payload_size(payload_size + add))
-	//	return false;
-	//payload.get()[payload_size] = '\0';
-	//payload_size += add;
-	//
+	//int mPhone
+	add = sizeof(int);
+	if (!check_payload_size(payload_size + add))
+		return false;
+	Protocol::intToChar(payload_struct.user.get()->mPhone, payload.get() + payload_size);//4bytes
+	payload_size += add;
+
+	//std::string city
+	add = payload_struct.user.get()->city.size();
+	if (!check_payload_size(payload_size + add))
+		return false;
+	std::copy(payload_struct.user.get()->city.begin(), payload_struct.user.get()->city.end(), payload.get() + payload_size);
+	payload_size += add;
+
+	add = sizeof(char);
+	if (!check_payload_size(payload_size + add))
+		return false;
+	payload.get()[payload_size] = '\0';
+	payload_size += add;
+	
 
 	if (payload_size > Protocol::MAX_PAYLOAD_SIZE)
 		return false;

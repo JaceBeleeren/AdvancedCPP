@@ -30,6 +30,7 @@ public:
 
 
 
+
 private:
 	void handle_connect(const boost::system::error_code& error);
 	void handle_write(const boost::system::error_code& error, std::size_t n, unsigned char action);

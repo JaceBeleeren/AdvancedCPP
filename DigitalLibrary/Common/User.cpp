@@ -58,7 +58,7 @@ User::~User()
 
 
 
-std::string User::modifyUser(std::string username, std::string firstName, std::string lastName, int mPhone, std::string city)
+std::string User::modifyUser( std::string firstName, std::string lastName, int mPhone, std::string city,std::string username )
 {
 	std::string errorMessage = "";
 	if (users.find(username) == users.end())
@@ -80,7 +80,7 @@ std::string User::modifyUser(std::string firstName, std::string lastName, int mP
 {
 	std::string errorMessage = "";	
 
-	return modifyUser(this->username, firstName, lastName, mPhone, city);
+	return modifyUser( firstName, lastName, mPhone, city, this->username);
 }
 
 int User::changePassword(User user, std::string oldPassword, std::string newPassword)
@@ -121,6 +121,22 @@ std::string User::deleteUser()
 	return deleteUser(this->username);
 }
 
+std::map<unsigned int, std::tuple<unsigned int, unsigned int>> User::getLendBooks(std::shared_ptr<User> u)
+{
+	std::map<unsigned int, std::string>::iterator it;
+
+	std::cout << "You lend the following book(s):" << std::endl;
+	std::cout << "=========================================================" << std::endl;
+
+	for (it = u.get()->lendBooks.begin(); it != u.get()->lendBooks.end(); it++)
+	{
+		std::cout << "BookID	:" << it->first << "	 " << "Book Title	:" << it->second << std::endl;
+		std::cout << "" << std::endl;
+		std::cout << "=========================================================" << std::endl;
+	}
+	return std::map<unsigned int, std::tuple<unsigned int, unsigned int>>();
+}
+
 
 //std::shared_ptr<user> user::getUser(unsigned int userId)
 //{
@@ -137,12 +153,12 @@ std::string User::deleteUser()
 std::shared_ptr<User> User::getUser(std::string username)
 {
 	std::string errorMessage = "";
-	/*if (users.find(username) == users.end())
+	if (users.find(username) == users.end())
 	{
 		errorMessage += ("\nUser with given username" + username + " does not exist!");
 		std::cout << errorMessage << std::endl;
 		throw std::invalid_argument(errorMessage);
-	}*/
+	}
 	//std::cout << "getuser" << std::endl;
 	//std::cout << username << std::endl;
 	//std::cout << users.count("Max");

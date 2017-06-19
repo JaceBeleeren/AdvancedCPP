@@ -20,19 +20,20 @@ bool ActionDeleteUser::parseToStruct(std::shared_ptr<char> newPayload)
 	if (!check_payload_size(payload_size))
 		return false;
 	std::string username = std::string(payload.get() + payload_size);
-	payload_size = username.size() + sizeof(char);
+	payload_size += username.size() + sizeof(char);
 
 
 	try
 	{
-		std::map < std::string, std::shared_ptr<User>>::iterator it; 
+		/*std::map < std::string, std::shared_ptr<User>>::iterator it; 
 		for (it = payload_struct.user.get()->users.begin(); it != payload_struct.user.get()->users.end(); it++)
-		{
-			if (it->second.get()->username == username)
+		{*/
+			payload_struct.user = payload_struct.user.get()->getUser(username);
+			/*if (it->second.get()->username == username)
 			{
-				payload_struct.user = it->second;
-			}
-		}
+				 = it->second;
+			}*/
+		/*}*/
 		/*payload_struct.user = payload_struct.user.get()->users.find(username)->second;*/
 	}
 
@@ -54,12 +55,11 @@ bool ActionDeleteUser::parseToPayload()
 	if (!payload)
 		payload = std::shared_ptr<char>(new char[Protocol::MAX_PAYLOAD_SIZE + 1], Protocol::array_deleter<char>());
 
-	////unsigned int id
-	//add = sizeof(unsigned int);
-	//if (!check_payload_size(payload_size + add))
-	//	return false;
-	//Protocol::uintToChar(payload_struct.id, payload.get() + payload_size);//4bytes
-	//payload_size += add;
+	add = payload_struct.user.get()->username.size();
+	if (!check_payload_size(payload_size + add))
+		return false;
+	std::copy(payload_struct.user.get()->username.begin(), payload_struct.user.get()->username.end(), payload.get() + payload_size);
+	payload_size += add;
 
 	if (payload_size > Protocol::MAX_PAYLOAD_SIZE)
 		return false;

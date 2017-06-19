@@ -58,6 +58,8 @@ public:
 	static const unsigned char ACTION_ADD_BOOK_RESPONSE = 111;
 	static const unsigned char ACTION_DELETE_BOOK = 120;
 	static const unsigned char ACTION_DELETE_BOOK_RESPONSE = 121;
+	static const unsigned char ACTION_SEARCH_BOOK = 130;
+	static const unsigned char ACTION_SEARCH_BOOK_RESPONSE = 131;
 
 private:
 	Protocol();

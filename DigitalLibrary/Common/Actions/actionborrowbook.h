@@ -1,5 +1,6 @@
 #pragma once
 #include "actiondatagramInterface.h"
+#include "..\User.h"
 class ActionBorrowBook :
 	public ActionDatagramInterface
 {
@@ -12,8 +13,8 @@ public:
 	struct PayloadStruct
 	{
 		unsigned int id;
-		unsigned int userId;
-	//	std::shared_ptr<User> u; 
+		std::string username;
+		std::shared_ptr<User> u; 
 	};
 	PayloadStruct payload_struct;
 	bool parseToStruct(std::shared_ptr<char> payload);
@@ -25,6 +26,7 @@ public:
 	{
 		unsigned char success;
 		std::string response;
+		
 	};
 	ResponseStruct response_struct;
 	bool response_parseToStruct(std::shared_ptr<char> payload);

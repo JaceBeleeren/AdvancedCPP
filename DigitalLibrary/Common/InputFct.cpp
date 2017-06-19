@@ -59,7 +59,6 @@ char InputFct::userScreen(std::shared_ptr<User> u)
 	std::cout << "'s' for searching books in general" << std::endl;
 	std::cout << "'i' for searching by the ISBN number" << std::endl;  
 	std::cout << "'b' for show your borrowed books" << std::endl;
-	std::cout << "'d' for delete your account" << std::endl;
 	std::cout << "'e' for exit / logout" << std::endl;
 
 
@@ -78,52 +77,18 @@ char InputFct::userScreen(std::shared_ptr<User> u)
 
 	
 
-	case 's':
-		
-		bookId = searchBook();
-		if (bookId != 0)
-		{
-			b.borrow(bookId, u);
-			return 's';
-		}
-		else
-		{ 
-			return 's';
-		}
+	case 's':		
+		return 's';
 
-	case 'i':
-		std::cout << "Please enter the ISBN number to search:" << std::endl;
-		std::cin >> isbn;
-		bookId = searchBookbyISBN(isbn); 
-		if (bookId != 0)
-		{
-			b.borrow(bookId, u);
+
+	case 'i':		
 			return 'i';
-		}
-		else
-		{
-			return 'i';
-		}
-
-	case 'b':
 		
-		std::cout << "You lend the following book(s):" << std::endl; 
-		std::cout << "=========================================================" << std::endl;
 
-		for (it = u.get()->lendBooks.begin(); it != u.get()->lendBooks.end(); it++)
-		{
-			std::cout << "BookID	:" << it->first << "	 " << "Book Title	:" << it->second << std::endl;
-			std::cout << "" << std::endl;
-			std::cout << "=========================================================" << std::endl;
-		}
+	case 'b':		
+		return 'b';
 
-		break;
-
-	case 'd':
-		deleteUser(u);
-		return 'd';
-
-		break;
+	
 
 	case 'e':
 
@@ -150,14 +115,11 @@ char InputFct::employeeScreen(std::shared_ptr<User> u)	// Screen with options fo
 	std::cout << "'m' for edit your account" << std::endl;
 	std::cout << "'a' for add a book" << std::endl;
 	std::cout << "'c' for modify a book" << std::endl;
-	std::cout << "'f' for delete a book" << std::endl;
 	std::cout << "'s' for searching books in general" << std::endl;
 	std::cout << "'i' for searching by the ISBN number" << std::endl; // XX
-	std::cout << "'p' for searching a specific user" << std::endl; 
 	std::cout << "'z' for show all  books" << std::endl;	
-	std::cout << "'x' for show all borrowed books" << std::endl; 
+	//std::cout << "'x' for show all borrowed books" << std::endl; 
 	std::cout << "'u' for show all users" << std::endl; 
-	std::cout << "'d' for delete your account" << std::endl;
 	std::cout << "'e' for exit / logout" << std::endl;
 
 	std::cin >> choice;
@@ -165,28 +127,17 @@ char InputFct::employeeScreen(std::shared_ptr<User> u)	// Screen with options fo
 	switch (choice)
 	{
 	case 'm':
-		u = modifyUser(u);
 		return 'm';	
-
-	case 'y':
-		std::cout << "Username	:" << u->username << std::endl;
-		std::cout << "First Name:" << u->fName << std::endl;
-		std::cout << "Last Name :" << u->lName << std::endl;
-		std::cout << "City		:" << u->city << std::endl;
-		std::cout << "Mobile Phone" << u->mPhone << std::endl;
-		break;
+	
 
 	case 'a':
-		/*addBook(); */
 		return 'a';
 
 	case'c':
 		
 		return 'c';
 
-	case 'd':
-		
-		return 'd';
+
 
 	case 's':
 		return 's';
@@ -199,18 +150,18 @@ char InputFct::employeeScreen(std::shared_ptr<User> u)	// Screen with options fo
 		
 			return 'i';
 
-	case 'p':
-		std::cout << "Please enter the username to search:" << std::endl;
-		std::cin >> uname; 
-		searchUser(uname);
-		return 'p';
+	//case 'p':
+	//	/*std::cout << "Please enter the username to search:" << std::endl;
+	//	std::cin >> uname; 
+	//	searchUser(uname);*/
+	//	return 'p';
 
 	case 'x':
 		showAllBorrowedBooks();
 		return 'x';
 
 	case'u':
-		showUsers();
+		
 		return 'u';
 
 

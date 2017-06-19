@@ -16,17 +16,17 @@ bool ActionBorrowBook::parseToStruct(std::shared_ptr<char> newPayload)
 	payload = newPayload;
 	payload_size = 0;
 
-	//unsigned int id
+	//int id
 	if (!check_payload_size(payload_size))
 		return false;
-	payload_struct.id = Protocol::charToUInt(payload.get() + payload_size);
+	unsigned int id = Protocol::charToInt(payload.get() + payload_size);
 	payload_size += sizeof(unsigned int);
 
-	//unsigned int userId
+	//std::string username
 	if (!check_payload_size(payload_size))
 		return false;
-	payload_struct.userId = Protocol::charToUInt(payload.get() + payload_size);
-	payload_size += sizeof(unsigned int);
+	std::string username = std::string(payload.get() + payload_size);
+	payload_size += username.size() + 1;
 
 	if (payload_size > Protocol::MAX_PAYLOAD_SIZE)
 		return false;
@@ -47,11 +47,17 @@ bool ActionBorrowBook::parseToPayload()
 	Protocol::uintToChar(payload_struct.id, payload.get() + payload_size);//4bytes
 	payload_size += add;
 
-	//unsigned int userId
-	add = sizeof(unsigned int);
+	// std:: string username
+	add = payload_struct.username.size();
 	if (!check_payload_size(payload_size + add))
 		return false;
-	Protocol::uintToChar(payload_struct.userId, payload.get() + payload_size);//4bytes
+	std::copy(payload_struct.username.begin(), payload_struct.username.end(), payload.get() + payload_size);
+	payload_size += add;
+
+	add = sizeof(char);
+	if (!check_payload_size(payload_size + add))
+		return false;
+	payload.get()[payload_size] = '\0';
 	payload_size += add;
 	
 

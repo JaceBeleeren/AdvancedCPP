@@ -24,7 +24,7 @@ public:
 
 	static std::map<unsigned int, std::shared_ptr<Book>> books; //list of all available books
 	static std::shared_ptr<Book> getBook(unsigned int id); //throws exception std::invalid_argument
-	static std::map<unsigned int, std::tuple<unsigned int, unsigned int>> getBorrowedBooks(); //key = bokId, first value = userId, second value = amount
+	//static std::map<unsigned int, std::tuple<unsigned int, unsigned int>> getBorrowedBooks(); //key = bokId, first value = userId, second value = amount
 
 
 	static std::list <std::shared_ptr<Book>> Book::getBooks(std::string title);  // search by title
@@ -37,7 +37,7 @@ public:
 	static std::shared_ptr<Book> Book::getBookbyISBN(std::string isbn);
 	std::shared_ptr<Book> Book::getBooks(int bookId);  // search by Id
 
-	void Book::borrowBook(std::shared_ptr<User> user, int id);
+	//void Book::borrowBook(std::shared_ptr<User> user, int id);
 
 
 	static std::string borrow(unsigned int id, std::shared_ptr<User>);
@@ -58,9 +58,10 @@ public:
 	unsigned int getBorrowed(); //get amount of Books borrowed
 	//std::string setBorrowed(); //set amount of books borrowed, cant be higher than amount //not needed since books will be borrowed with borrow()
 	std::map<std::string, unsigned int> borrowedByUser;//key = userId, value = amount
-private:
-	bool checkConstruction(bool construction = true);//check if actual constructor was already called (false) or is not called yet (true) and throws exception if its true
 	unsigned int id; //Book ID and Key for std::map Books
+private:
+//bool checkConstruction(bool construction = true);//check if actual constructor was already called (false) or is not called yet (true) and throws exception if its true
+	
 	std::string isbn;
 	unsigned int amount;
 	unsigned int borrowed;

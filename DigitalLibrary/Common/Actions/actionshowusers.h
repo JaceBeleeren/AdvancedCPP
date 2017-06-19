@@ -1,5 +1,6 @@
 #pragma once
 #include "actiondatagramInterface.h"
+#include "..\User.h"
 class ActionShowUsers :
 	public ActionDatagramInterface
 {
@@ -22,7 +23,8 @@ public:
 	static const unsigned int action_response = Protocol::ACTION_SHOW_USERS_RESPONSE;
 	struct ResponseStruct
 	{
-		//User users[];
+		unsigned int size;	 
+		std::list<User> list;
 	};
 	ResponseStruct response_struct;
 	bool response_parseToStruct(std::shared_ptr<char> payload);

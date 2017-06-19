@@ -22,34 +22,20 @@ bool ActionModifyUser::parseToStruct(std::shared_ptr<char> newPayload)
 	if (!check_payload_size(payload_size))
 		return false;
 	std::string username = std::string(payload.get() + payload_size);
-	payload_size = username.size() + 1;
-	
-
-	// int userType
-	if (!check_payload_size(payload_size))
-		return false;
-	unsigned int userType = Protocol::charToInt(payload.get() + payload_size);
-	payload_size += sizeof(int);
-		
+	payload_size += username.size() + 1;		
 
 	
 	//std::string fName
 	if (!check_payload_size(payload_size))
 		return false;
 	std::string fName = std::string(payload.get() + payload_size);
-	payload_size = fName.size() + 1;
+	payload_size += fName.size() + 1;
 
 	//std::string lName
 	if (!check_payload_size(payload_size))
 		return false;
 	std::string lName = std::string(payload.get() + payload_size);
 	payload_size += lName.size() + 1;
-
-	//std::string password
-	if (!check_payload_size(payload_size))
-		return false;
-	std::string password = std::string(payload.get() + payload_size);
-	payload_size += password.size() + 1;
 
 
 	// int mPhone
@@ -67,18 +53,23 @@ bool ActionModifyUser::parseToStruct(std::shared_ptr<char> newPayload)
 	if (payload_size > Protocol::MAX_PAYLOAD_SIZE)
 		return false;
 
+
 	try
 	{
-		/*std::shared_ptr<User> user;
+		std::shared_ptr<User> user = User::getUser(username);
 
 		user.get()->username = username;
 		user.get()->fName = fName;
 		user.get()->lName = lName;
 		user.get()->mPhone = mPhone;
-		user.get()->city = city;
-		user.get()->userType = userType;		
+		user.get()->city = city;		
 
-		payload_struct.user = user;*/
+		payload_struct.user = user;
+		std::cout << "username:" << username << std::endl;
+		std::cout << "new fname:" << fName << std::endl;
+		std::cout << "new fname:" << user.get()->fName << std::endl;
+		std::cout << "new lname:" << lName << std::endl;
+		std::cout << "new lname" << user.get()->lName << std::endl;
 	}
 	catch (std::exception& e)
 	{
@@ -88,7 +79,7 @@ bool ActionModifyUser::parseToStruct(std::shared_ptr<char> newPayload)
 
 
 	
-	std::string errorMessage = payload_struct.user.get()->modifyUser(username,fName, lName, mPhone, city);
+	std::string errorMessage = payload_struct.user.get()->modifyUser(fName, lName, mPhone, city, username);
 	if (errorMessage == "")
 	{
 		std::cout << errorMessage;
@@ -136,11 +127,14 @@ bool ActionModifyUser::parseToPayload()
 
 
 	// std::string lName
+
 	add = payload_struct.user.get()->lName.size();
 	if (!check_payload_size(payload_size + add))
 		return false;
+	std::cout << "Name" << payload_struct.user.get()->lName; // Getter entfernen
 	std::copy(payload_struct.user.get()->lName.begin(), payload_struct.user.get()->lName.end(), payload.get() + payload_size);
 	payload_size += add;
+
 
 	add = sizeof(char);
 	if (!check_payload_size(payload_size + add))
